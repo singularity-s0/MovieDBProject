@@ -23,6 +23,7 @@ bserv::db_relation_to_object orm_user{
 	bserv::make_db_field<std::string>("first_name"),
 	bserv::make_db_field<std::string>("last_name"),
 	bserv::make_db_field<std::string>("email"),
+	bserv::make_db_field<std::string>("roal"),
 	bserv::make_db_field<bool>("is_active")
 };
 
@@ -112,7 +113,7 @@ boost::json::object user_register(
 	bserv::db_result r = tx.exec(
 		"insert into ? "
 		"(?, password, is_superuser, "
-		"first_name, last_name, email, is_active) values "
+		"first_name, last_name, email, roal, is_active) values "
 		"(?, ?, ?, ?, ?, ?, ?)", bserv::db_name("auth_user"),
 		bserv::db_name("username"),
 		username,
@@ -120,7 +121,8 @@ boost::json::object user_register(
 			password.c_str()), false,
 		get_or_empty(params, "first_name"),
 		get_or_empty(params, "last_name"),
-		get_or_empty(params, "email"), true);
+		get_or_empty(params, "email"), 
+		get_or_empty(params, "roal"), true);
 	lginfo << r.query();
 	tx.commit(); // you must manually commit changes
 	return {
