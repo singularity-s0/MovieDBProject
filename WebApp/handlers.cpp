@@ -485,7 +485,8 @@ boost::json::object movie_register(
 		"(?, movie_id,  "
 		"starname, detail, duration, type, avg_rating, poster,"
 		"box_office, num_participants, release_date, box_office_unit"
-		"foreign_name, location", bserv::db_name("auth_movie"),
+		"foreign_name, location) values "
+		"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", bserv::db_name("auth_movie"),
 		bserv::db_name("moviename"),
 		moviename, 
 		get_or_empty(params, "movie_id"),
