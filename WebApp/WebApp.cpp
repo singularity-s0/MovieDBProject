@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::session,
 			bserv::placeholders::response,
 			bserv::placeholders::_1),
-		bserv::make_path("/form_add_user", &form_add_movie,
+		bserv::make_path("/form_add_movie", &form_add_movie,
 			bserv::placeholders::request,
 			bserv::placeholders::response,
 			bserv::placeholders::json_params,
