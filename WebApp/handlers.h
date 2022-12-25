@@ -38,6 +38,15 @@ boost::json::object send_request(
 boost::json::object echo(
     boost::json::object&& params);
 
+boost::json::object movie_register(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn);
+
+boost::json::object find_movie(
+    std::shared_ptr<bserv::db_connection> conn,
+    const std::string& moviename);
+
 // websocket
 std::nullopt_t ws_echo(
     std::shared_ptr<bserv::session_type> session,
@@ -74,3 +83,18 @@ std::nullopt_t form_add_user(
     boost::json::object&& params,
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr);
+
+std::nullopt_t view_movies(
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    bserv::response_type& response,
+    const std::string& page_num);
+
+std::nullopt_t form_add_movie(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr);
+
+

@@ -528,13 +528,6 @@ boost::json::object find_movie(
 	};
 }
 
-
-
-boost::json::object echo(
-	boost::json::object&& params) {
-	return { {"echo", params} };
-}
-
 std::nullopt_t index(
 	const std::string& template_path,
 	std::shared_ptr<bserv::session_type> session_ptr,
@@ -613,7 +606,7 @@ std::nullopt_t redirect_to_movies(
 		context["pagination"] = pagination;
 	}
 	context["movies"] = json_movies;
-	return index("movies.html", session_ptr, response, context);
+	return index("index.html", session_ptr, response, context);
 }
 
 std::nullopt_t view_movies(

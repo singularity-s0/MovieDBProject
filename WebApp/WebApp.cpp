@@ -126,6 +126,33 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::json_params,
 			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session),
+
+		bserv::make_path("/movie_register", &movie_register,
+			bserv::placeholders::request,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr),
+		bserv::make_path("/findmovie/<str>", &find_movie,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::_1),
+		bserv::make_path("/movies", &view_movies,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::response,
+			std::string{"1"}),
+		bserv::make_path("/movies/<int>", &view_movies,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::response,
+			bserv::placeholders::_1),
+		bserv::make_path("/form_add_user", &form_add_movie,
+			bserv::placeholders::request,
+			bserv::placeholders::response,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session),
+
+
+
 		}
 		, {
 			// websocket example
