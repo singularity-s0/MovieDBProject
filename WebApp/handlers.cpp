@@ -32,7 +32,7 @@ bserv::db_relation_to_object orm_movie{
 	bserv::make_db_field<std::string>("moviename"),
 	bserv::make_db_field<std::string>("starname"),
 	bserv::make_db_field<std::string>("detail"),
-	bserv::make_db_field<int>("duration"),
+	bserv::make_db_field<int>("running_time"),
 	bserv::make_db_field<std::string>("type"),
 	bserv::make_db_field<int>("avg_rating"),
 	bserv::make_db_field<std::string>("poster"),

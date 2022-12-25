@@ -7,12 +7,160 @@
 {% block content %}
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
-    <h1 class="display-5 fw-bold">Custom jumbotron</h1>
-    <p class="col-md-8 fs-4">Using a series of utilities, you can create this jumbotron, just like the one in previous versions of Bootstrap. Check out the examples below for how you can remix and restyle it to your liking.</p>
-    <button class="btn btn-primary btn-lg" type="button">Example button</button>
+    <h1 class="display-5 fw-bold">Announcement</h1>
+    <p class="col-md-8 fs-4">Welcome!</p>
+    <button class="btn btn-primary btn-lg" type="button">Edit</button>
   </div>
 </div>
 
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#movieModal">
+  Add Movie
+</button>
+
+<div class="modal fade" id="movieModal" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/form_add_movie">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">Add User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="movie_id" class="form-label">Movie ID</label>
+            <input type="text" class="form-control" id="moviez_id" name="movie_id" placeholder="xxxxxx">
+          </div>
+          <div class="mb-3">
+            <label for="starname" class="form-label">Starname</label>
+            <input type="text" class="form-control" id="starname" name="starname" placeholder="Starname1,Starname2,...">
+          </div>
+          <div class="mb-3">
+            <label for="detail" class="form-label">Detail</label>
+            <input type="text" class="form-control" id="detail" name="detail" placeholder="Detail">
+          </div>
+          <div class="mb-3">
+            <label for="running_time" class="form-label">Running Time</label>
+            <input type="text" class="form-control" id="running_time" name="running_time" placeholder="xx min">
+          </div>
+          <div class="mb-3">
+            <label for="type" class="form-label">Type</label>
+            <input type="text" class="form-label" id="type" name="type" placeholder="type">
+          </div>
+          <div class="mb-3">
+            <label for="poster" class="form-label">Poster</label>
+            <input type="poster" class="caption" id="poster" name="poster" placeholder="one picture">
+          </div>
+          <!--import picture?-->
+          <div class="mb-3">
+            <label for="release_date" class="form-label">Release Date</label>
+            <input type="text" class="form-control" id="release_date" name="xxxx/xx/xx">
+          </div>
+          <div class="mb-3">
+            <label for="foreign_name" class="form-label">Foreign Name</label>
+            <input type="text" class="form-label" id="foreign_name" name="foreign_name" placeholder="foreign_name">
+          </div>
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-label" id="location" name="location" placeholder="location">
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Moviename</th>
+      <th scope="col">Starname</th>
+      <th scope="col">Detail</th>
+      <th scope="col">Running time</th>
+      <th scope="col">Type</th>
+      <th scope="col">Average rating</th>
+      <th scope="col">Poster</th>
+      <th scope="col">Box office</th>
+      <th scope="col">Number of participants</th>
+      <th scope="col">Release Date</th>
+      <th scope="col">Box office unit</th>
+      <th scope="col">Foreign name</th>
+      <th scope="col">Location</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for movie in movies %}
+    <tr style="vertical-align: middle;">
+      <th scope="row">{{ loop.index1 }}</th>
+      <td>{{ movie.moviename }}</td>
+      <td>{{ movie.starname }}</td>
+      <td>{{ movie.detail }}</td>
+      <td>{{ movie.running_time }}</td>
+      <td>{{ movie.type }}</td>
+      <td>{{ movie.avg_rating }}</td>
+      <td>{{ movie.poster }}</td>
+      <td>{{ movie.box_office }}</td>
+      <td>{{ movie.num_participants }}</td>
+      <td>{{ movie.release_date }}</td>
+      <td>{{ movie.box_office_unit }}</td>
+      <td>{{ movie.foreign_name }}</td>
+      <td>{{ movie.location }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if exists("pagination") %}
+<ul class="pagination">
+  {% if existsIn(pagination, "previous") %}
+  <li class="page-item">
+    <a class="page-link" href="/movies/{{ pagination.previous }}" aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span>
+    </a>
+  </li>
+  {% else %}
+  <li class="page-item disabled">
+    <a class="page-link" href="#" aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span>
+    </a>
+  </li>
+  {% endif %}
+  {% if existsIn(pagination, "left_ellipsis") %}
+  <li class="page-item"><a class="page-link" href="/movies/1">1</a></li>
+  <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+  {% endif %}
+  {% for page in pagination.pages_left %}
+  <li class="page-item"><a class="page-link" href="/moviess/{{ page }}">{{ page }}</a></li>
+  {% endfor %}
+  <li class="page-item active" aria-current="page"><a class="page-link" href="/movies/{{ pagination.current }}">{{ pagination.current }}</a></li>
+  {% for page in pagination.pages_right %}
+  <li class="page-item"><a class="page-link" href="/movies/{{ page }}">{{ page }}</a></li>
+  {% endfor %}
+  {% if existsIn(pagination, "right_ellipsis") %}
+  <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+  <li class="page-item"><a class="page-link" href="/movies/{{ pagination.total }}">{{ pagination.total }}</a></li>
+  {% endif %}
+  {% if existsIn(pagination, "next") %}
+  <li class="page-item">
+    <a class="page-link" href="/movies/{{ pagination.next }}" aria-label="Next">
+      <span aria-hidden="true">&raquo;</span>
+    </a>
+  </li>
+  {% else %}
+  <li class="page-item disabled">
+    <a class="page-link" href="#" aria-label="Next">
+      <span aria-hidden="true">&raquo;</span>
+    </a>
+  </li>
+  {% endif %}
+</ul>
+{% endif %}
+
+<!-- 
 <div class="row align-items-md-stretch">
   <div class="col-md-6">
     <div class="h-100 p-5 text-white bg-dark rounded-3">
@@ -29,4 +177,6 @@
     </div>
   </div>
 </div>
+-->
+
 {% endblock %}
