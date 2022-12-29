@@ -169,7 +169,7 @@ boost::json::object user_register(
 		"insert into ? "
 		"(?, password, is_superuser, "
 		"first_name, last_name, email, is_active, roal) values "
-		"(?, ?, ?, ?, ?, ?, ?)", bserv::db_name("auth_user"),
+		"(?, ?, ?, ?, ?, ?, ?, ?)", bserv::db_name("auth_user"),
 		bserv::db_name("username"),
 		username,
 		bserv::utils::security::encode_password(
@@ -528,7 +528,7 @@ boost::json::object find_movie(
 	};
 }
 
-std::nullopt_t index(
+std::nullopt_t movie_index(
 	const std::string& template_path,
 	std::shared_ptr<bserv::session_type> session_ptr,
 	bserv::response_type& response,
@@ -540,7 +540,7 @@ std::nullopt_t index(
 	return render(response, template_path, context);
 }
 
-std::nullopt_t index_page(
+std::nullopt_t movie_index_page(
 	std::shared_ptr<bserv::session_type> session_ptr,
 	bserv::response_type& response) {
 	boost::json::object context;
