@@ -98,9 +98,11 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::_1),
 
 		// serving html template files
-		bserv::make_path("/", &index_page,
+		bserv::make_path("/", &view_movies,
+			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session,
-			bserv::placeholders::response),
+			bserv::placeholders::response,
+			std::string{"1"}), // Entry should be a alias of movies page, since they both serve index.html
 		bserv::make_path("/form_login", &form_login,
 			bserv::placeholders::request,
 			bserv::placeholders::response,

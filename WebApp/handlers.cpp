@@ -325,14 +325,33 @@ std::nullopt_t serve_static_files(
 }
 
 
+// std::nullopt_t index(
+// 	const std::string& template_path,
+// 	std::shared_ptr<bserv::session_type> session_ptr,
+// 	bserv::response_type& response,
+// 	boost::json::object& context) {
+// 	bserv::session_type& session = *session_ptr;
+// 	if (session.contains("user")) {
+// 		context["user"] = session["user"];
+// 	}
+// 	return render(response, template_path, context);
+// }
+
+// std::nullopt_t index_page(
+// 	std::shared_ptr<bserv::session_type> session_ptr,
+// 	bserv::response_type& response) {
+// 	boost::json::object context;
+// 	return index("index.html", session_ptr, response, context);
+// }
+
 std::nullopt_t index(
 	const std::string& template_path,
 	std::shared_ptr<bserv::session_type> session_ptr,
 	bserv::response_type& response,
 	boost::json::object& context) {
 	bserv::session_type& session = *session_ptr;
-	if (session.contains("user")) {
-		context["user"] = session["user"];
+	if (session.contains("movie")) {
+		context["movie"] = session["movie"];
 	}
 	return render(response, template_path, context);
 }
@@ -450,7 +469,7 @@ std::optional<boost::json::object> get_movie(
 	bserv::db_transaction& tx,
 	const boost::json::string& moviename) {
 	bserv::db_result r = tx.exec(
-		"select * from auth_movie where moviename = ?", moviename);
+		"select * from movies where moviename = ?", moviename);
 	lginfo << r.query(); 
 	return orm_movie.convert_to_optional(r);
 }
@@ -486,7 +505,7 @@ boost::json::object movie_register(
 		"starname, detail, duration, type, avg_rating, poster,"
 		"box_office, num_participants, release_date, box_office_unit"
 		"foreign_name, location) values "
-		"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", bserv::db_name("auth_movie"),
+		"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", bserv::db_name("movies"),
 		bserv::db_name("moviename"),
 		moviename, 
 		get_or_empty(params, "movie_id"),
@@ -528,25 +547,6 @@ boost::json::object find_movie(
 	};
 }
 
-std::nullopt_t movie_index(
-	const std::string& template_path,
-	std::shared_ptr<bserv::session_type> session_ptr,
-	bserv::response_type& response,
-	boost::json::object& context) {
-	bserv::session_type& session = *session_ptr;
-	if (session.contains("movie")) {
-		context["movie"] = session["movie"];
-	}
-	return render(response, template_path, context);
-}
-
-std::nullopt_t movie_index_page(
-	std::shared_ptr<bserv::session_type> session_ptr,
-	bserv::response_type& response) {
-	boost::json::object context;
-	return index("index.html", session_ptr, response, context);
-}
-
 std::nullopt_t redirect_to_movies(
 	std::shared_ptr<bserv::db_connection> conn,
 	std::shared_ptr<bserv::session_type> session_ptr,
@@ -555,14 +555,14 @@ std::nullopt_t redirect_to_movies(
 	boost::json::object&& context) {
 	lgdebug << "view movies: " << page_id << std::endl;
 	bserv::db_transaction tx{ conn };
-	bserv::db_result db_res = tx.exec("select count(*) from auth_movie;");
+	bserv::db_result db_res = tx.exec("select count(*) from movies;");
 	lginfo << db_res.query();
 	std::size_t total_movies = (*db_res.begin())[0].as<std::size_t>();
 	lgdebug << "total movies: " << total_movies << std::endl;
 	int total_pages = (int)total_movies / 10;
 	if (total_movies % 10 != 0) ++total_pages;
 	lgdebug << "total pages: " << total_pages << std::endl;
-	db_res = tx.exec("select * from auth_movie limit 10 offset ?;", (page_id - 1) * 10);
+	db_res = tx.exec("select * from movies limit 10 offset ?;", (page_id - 1) * 10);
 	lginfo << db_res.query();
 	auto movies = orm_movie.convert_to_vector(db_res);
 	boost::json::array json_movies;
