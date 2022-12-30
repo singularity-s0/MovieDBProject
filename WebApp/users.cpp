@@ -34,7 +34,15 @@ boost::json::object user_register(bserv::request_type& request,
                                   // the json object is obtained from the
                                   // request body, as well as the url parameters
                                   boost::json::object&& params,
-                                  std::shared_ptr<bserv::db_connection> conn) {
+                                  std::shared_ptr<bserv::db_connection> conn,
+                                  std::shared_ptr<bserv::session_type> session_ptr,
+                                  bool regular_user = false) {
+    std::optional<boost::json::object> p;
+    if (!regular_user && (p = check_session_permission(*session_ptr, "modify_user")) !=
+        std::nullopt) {
+        return p.value();
+    }
+
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
@@ -51,6 +59,10 @@ boost::json::object user_register(bserv::request_type& request,
         return {{"success", false}, {"message", "Username exists"}};
     }
     auto password = params["password"].as_string();
+    auto roal = get_or_empty(params, "roal");
+    if (regular_user) {
+        roal = "user";
+    }
     bserv::db_result r = tx.exec(
         "insert into ? "
         "(?, password, is_superuser, "
@@ -59,7 +71,7 @@ boost::json::object user_register(bserv::request_type& request,
         bserv::db_name("auth_user"), bserv::db_name("username"), username,
         bserv::utils::security::encode_password(password.c_str()), false,
         get_or_empty(params, "first_name"), get_or_empty(params, "last_name"),
-        get_or_empty(params, "email"), true, get_or_empty(params, "roal"));
+        get_or_empty(params, "email"), true, roal);
     lginfo << r.query();
     tx.commit();  // you must manually commit changes
     return {{"success", true}, {"message", "User registered"}};
@@ -270,9 +282,20 @@ std::nullopt_t form_add_user(bserv::request_type& request,
                              std::shared_ptr<bserv::db_connection> conn,
                              std::shared_ptr<bserv::session_type> session_ptr) {
     boost::json::object context =
-        user_register(request, std::move(params), conn);
+        user_register(request, std::move(params), conn, session_ptr);
     return redirect_to_users(conn, session_ptr, response, 1,
                              std::move(context));
+}
+
+std::nullopt_t form_register(bserv::request_type& request,
+                             bserv::response_type& response,
+                             boost::json::object&& params,
+                             std::shared_ptr<bserv::db_connection> conn,
+                             std::shared_ptr<bserv::session_type> session_ptr) {
+    boost::json::object context =
+        user_register(request, std::move(params), conn, session_ptr, true);
+    return redirect_to_movies(conn, session_ptr, response, 1,
+                             std::move(context)); // Regular users don't have permission to view user page
 }
 
 std::nullopt_t form_modify_user(

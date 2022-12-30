@@ -46,6 +46,12 @@ boost::json::object send_request(std::shared_ptr<bserv::session_type> session,
 
 boost::json::object echo(boost::json::object&& params);
 
+std::nullopt_t form_register(bserv::request_type& request,
+                             bserv::response_type& response,
+                             boost::json::object&& params,
+                             std::shared_ptr<bserv::db_connection> conn,
+                             std::shared_ptr<bserv::session_type> session_ptr);
+
 boost::json::object movie_register(
     bserv::request_type& request,
     boost::json::object&& params,
