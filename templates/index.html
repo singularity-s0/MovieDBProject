@@ -59,8 +59,16 @@
       <td>{{ movie.foreign_name }}</td>
       <td>{{ movie.location }}</td>
       <td>
-        {% if existsIn(permission, "modify_movie") %}<a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a>{% endif %}
-        {% if exists("user") %}<a href="/buyticket/{{ movie.movie_id }}">Buy</a>{% else %}<a href="" data-bs-toggle="modal" data-bs-target="#loginModal">Login to Buy</a>{% endif %}
+        {% if existsIn(permission, "modify_movie") %}
+        <a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a>
+        <a href="/managemovie/{{ movie.movie_id }}">Manage</a>
+        {% endif %}
+
+        {% if exists("user") %}
+        <a href="/buyticket/{{ movie.movie_id }}">Buy</a>
+        {% else %}
+        <a href="" data-bs-toggle="modal" data-bs-target="#loginModal">Login to Buy</a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}
@@ -217,6 +225,7 @@
             <label for="location" class="form-label">Location</label>
             <input type="text" class="form-label" id="location" name="location" placeholder="location">
           </div>
+        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Add</button>
