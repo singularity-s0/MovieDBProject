@@ -29,9 +29,10 @@ std::optional<boost::json::object> get_movie(
 }
 
 std::optional<boost::json::object> get_movie_by_id(bserv::db_transaction& tx,
-                                                  const int movie_id) {
-    bserv::db_result r = tx.exec("select * from movies where movie_id = ?", movie_id);
-    lginfo << r.query(); 
+                                                   const int movie_id) {
+    bserv::db_result r =
+        tx.exec("select * from movies where movie_id = ?", movie_id);
+    lginfo << r.query();
     return orm_movie.convert_to_optional(r);
 }
 
@@ -85,11 +86,11 @@ boost::json::object movie_register(
 }
 
 boost::json::object movie_modify(bserv::request_type& request,
-                                // the json object is obtained from the request
-                                // body, as well as the url parameters
-                                boost::json::object&& params,
-                                std::shared_ptr<bserv::db_connection> conn,
-                                int movie_id) {
+                                 // the json object is obtained from the request
+                                 // body, as well as the url parameters
+                                 boost::json::object&& params,
+                                 std::shared_ptr<bserv::db_connection> conn,
+                                 int movie_id) {
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
@@ -104,24 +105,27 @@ boost::json::object movie_modify(bserv::request_type& request,
         "set moviename = COALESCE(NULLIF(?, ''), moviename), "
         "starname = COALESCE(NULLIF(?, ''), starname), "
         "detail = COALESCE(NULLIF(?, ''), detail), "
-        "running_time = COALESCE(NULLIF(?, ''), running_time), "
+        "running_time = COALESCE(NULLIF(?, 0), running_time), "
         "type = COALESCE(NULLIF(?, ''), type), "
-        "avg_rating = COALESCE(NULLIF(?, ''), avg_rating) "
-        "poster = COALESCE(NULLIF(?, ''), poster) "
-        "box_office = COALESCE(NULLIF(?, ''), box_office) "
-        "num_participants = COALESCE(NULLIF(?, ''), num_participants) "
-        "release_date = COALESCE(NULLIF(?, ''), release_date) "
-        "box_office_unit = COALESCE(NULLIF(?, ''), box_office_unit) "
-        "foreign_name = COALESCE(NULLIF(?, ''), foreign_name) "
+        "avg_rating = COALESCE(NULLIF(?, 0), avg_rating), "
+        "poster = COALESCE(NULLIF(?, ''), poster), "
+        "box_office = COALESCE(NULLIF(?, 0), box_office), "
+        "num_participants = COALESCE(NULLIF(?, 0), num_participants), "
+        "release_date = COALESCE(NULLIF(?, 0), release_date), "
+        "box_office_unit = COALESCE(NULLIF(?, ''), box_office_unit), "
+        "foreign_name = COALESCE(NULLIF(?, ''), foreign_name), "
         "location = COALESCE(NULLIF(?, ''), location) "
         "where movie_id = ?",
         bserv::db_name("movies"), get_or_empty(params, "moviename"),
         get_or_empty(params, "starname"), get_or_empty(params, "detail"),
-        get_or_empty(params, "running_time"), get_or_empty(params, "type"),
-        get_or_empty(params, "avg_rating"),get_or_empty(params, "poster"), 
-        get_or_empty(params, "box_office"), get_or_empty(params, "num_participants"),
-        get_or_empty(params, "release_date"), get_or_empty(params, "box_office_unit"), 
-        get_or_empty(params, "foreign_name"),get_or_empty(params, "location"), movie_id);
+        get_stoi_or_zero(params, "running_time"), get_or_empty(params, "type"),
+        get_stoi_or_zero(params, "avg_rating"), get_or_empty(params, "poster"),
+        get_stoi_or_zero(params, "box_office"),
+        get_stoi_or_zero(params, "num_participants"),
+        get_stoi_or_zero(params, "release_date"),
+        get_or_empty(params, "box_office_unit"),
+        get_or_empty(params, "foreign_name"), get_or_empty(params, "location"),
+        movie_id);
     lginfo << r.query();
     tx.commit();  // you must manually commit changes
     return {{"success", true}, {"message", "Movie modified"}};
@@ -236,5 +240,5 @@ std::nullopt_t form_modify_movie(
     boost::json::object context =
         movie_modify(request, std::move(params), conn, mov_id);
     return redirect_to_movies(conn, session_ptr, response, 1,
-                             std::move(context));
+                              std::move(context));
 }

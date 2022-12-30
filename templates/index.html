@@ -58,7 +58,7 @@
       <td>{{ movie.box_office_unit }}</td>
       <td>{{ movie.foreign_name }}</td>
       <td>{{ movie.location }}</td>
-      <td><a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a></td>
+      <td>{% if existsIn(permission, "modify_movie") %}<a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a>{% endif %}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -109,61 +109,6 @@
   {% endif %}
 </ul>
 {% endif %}
-
-<div class="modal fade" id="movieModal" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form method="post" action="/form_add_movie">
-        <div class="modal-header">
-          <h5 class="modal-title" id="userModalLabel">Add User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="moviename" class="form-label">Name</label>
-            <input type="text" class="form-control" id="moviezname" name="moviename">
-          </div>
-          <div class="mb-3">
-            <label for="starname" class="form-label">Star</label>
-            <input type="text" class="form-control" id="starname" name="starname" placeholder="Starname1,Starname2,...">
-          </div>
-          <div class="mb-3">
-            <label for="detail" class="form-label">Detail</label>
-            <input type="text" class="form-control" id="detail" name="detail" placeholder="Detail">
-          </div>
-          <div class="mb-3">
-            <label for="running_time" class="form-label">Length</label>
-            <input type="text" class="form-control" id="running_time" name="running_time" placeholder="xx min">
-          </div>
-          <div class="mb-3">
-            <label for="type" class="form-label">Type</label>
-            <input type="text" class="form-label" id="type" name="type" placeholder="type">
-          </div>
-          <div class="mb-3">
-            <label for="poster" class="form-label">Poster</label>
-            <input type="poster" class="caption" id="poster" name="poster" placeholder="one picture">
-          </div>
-          <!--import picture?-->
-          <div class="mb-3">
-            <label for="release_date" class="form-label">Release Date</label>
-            <input type="text" class="form-control" id="release_date" name="xxxx/xx/xx">
-          </div>
-          <div class="mb-3">
-            <label for="foreign_name" class="form-label">Foreign Name</label>
-            <input type="text" class="form-label" id="foreign_name" name="foreign_name" placeholder="foreign_name">
-          </div>
-          <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-            <input type="text" class="form-label" id="location" name="location" placeholder="location">
-          </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <!-- Modify -->
 {% for movie in movies %}
@@ -222,6 +167,61 @@
   </div>
 </div>
 {% endfor %}
+
+<div class="modal fade" id="movieModal" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/form_add_movie">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">Add Movie</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="moviename" class="form-label">Name</label>
+            <input type="text" class="form-control" id="moviezname" name="moviename">
+          </div>
+          <div class="mb-3">
+            <label for="starname" class="form-label">Star</label>
+            <input type="text" class="form-control" id="starname" name="starname" placeholder="Starname1,Starname2,...">
+          </div>
+          <div class="mb-3">
+            <label for="detail" class="form-label">Detail</label>
+            <input type="text" class="form-control" id="detail" name="detail" placeholder="Detail">
+          </div>
+          <div class="mb-3">
+            <label for="running_time" class="form-label">Length</label>
+            <input type="text" class="form-control" id="running_time" name="running_time" placeholder="xx min">
+          </div>
+          <div class="mb-3">
+            <label for="type" class="form-label">Type</label>
+            <input type="text" class="form-label" id="type" name="type" placeholder="type">
+          </div>
+          <div class="mb-3">
+            <label for="poster" class="form-label">Poster</label>
+            <input type="poster" class="caption" id="poster" name="poster" placeholder="one picture">
+          </div>
+          <!--import picture?-->
+          <div class="mb-3">
+            <label for="release_date" class="form-label">Release Date</label>
+            <input type="text" class="form-control" id="release_date" name="xxxx/xx/xx">
+          </div>
+          <div class="mb-3">
+            <label for="foreign_name" class="form-label">Foreign Name</label>
+            <input type="text" class="form-label" id="foreign_name" name="foreign_name" placeholder="foreign_name">
+          </div>
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-label" id="location" name="location" placeholder="location">
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
 <!-- 
