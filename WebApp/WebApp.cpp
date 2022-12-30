@@ -110,6 +110,7 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session),
 		bserv::make_path("/form_logout", &form_logout,
+			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session,
 			bserv::placeholders::response),
 		bserv::make_path("/users", &view_users,

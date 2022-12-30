@@ -379,11 +379,12 @@ std::nullopt_t form_login(
 }
 
 std::nullopt_t form_logout(
+	std::shared_ptr<bserv::db_connection> conn,
 	std::shared_ptr<bserv::session_type> session_ptr,
 	bserv::response_type& response) {
 	auto context = user_logout(session_ptr);
 	lginfo << "logout: " << context << std::endl;
-	return index("index.html", session_ptr, response, context);
+	return redirect_to_movies(conn, session_ptr, response, 1, std::move(context));
 }
 
 std::nullopt_t redirect_to_users(

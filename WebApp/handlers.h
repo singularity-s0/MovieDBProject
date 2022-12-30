@@ -68,6 +68,7 @@ std::nullopt_t form_login(
     std::shared_ptr<bserv::session_type> session_ptr);
 
 std::nullopt_t form_logout(
+    std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr,
     bserv::response_type& response);
 
