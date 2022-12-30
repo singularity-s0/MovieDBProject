@@ -129,6 +129,13 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::json_params,
 			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session),
+		bserv::make_path("/form_modify_user/<int>", &form_modify_user,
+			bserv::placeholders::request,
+			bserv::placeholders::response,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::_1),
 
 		bserv::make_path("/movie_register", &movie_register,
 			bserv::placeholders::request,

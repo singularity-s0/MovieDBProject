@@ -46,6 +46,44 @@
   </div>
 </div>
 
+<!-- Modify Modal -->
+{% for user in users %}
+<div class="modal fade" id="userModifyModal{{user.id}}" tabindex="-1" aria-labelledby="userModifyModalLabel{{user.id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/form_modify_user/{{user.id}}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">Modify User {{user.username}}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="{{user.username}}">
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="{{user.email}}">
+          </div>
+          <div class="mb-3">
+            <label for="roal" class="form-label">Roal</label>
+            <input type="text" class="form-control" id="roal" name="roal" placeholder="{{user.roal}}">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="unchanged">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Modify</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 <table class="table">
   <thead>
     <tr>
@@ -63,7 +101,7 @@
       <td>{{ user.username }}</td>
       <td>{{ user.email }}</td>
       <td>{{ user.roal }}</td>
-      <td><a href="/users/modify/{{ user.id }}">Modify</a></td>
+      <td><a href="" data-bs-toggle="modal" data-bs-target="#userModifyModal{{user.id}}">Modify</a></td>
     </tr>
     {% endfor %}
   </tbody>

@@ -91,46 +91,20 @@ std::optional<boost::json::object> get_user(
 	return orm_user.convert_to_optional(r);
 }
 
+std::optional<boost::json::object> get_user_by_id(
+	bserv::db_transaction& tx,
+	const int id) {
+	bserv::db_result r = tx.exec(
+		"select * from auth_user where id = ?", id);
+	lginfo << r.query(); // this is how you log info
+	return orm_user.convert_to_optional(r);
+}
+
 std::string get_or_empty(
 	boost::json::object& obj,
 	const std::string& key) {
 	return obj.count(key) ? obj[key].as_string().c_str() : "";
 }
-
-// // if you want to manually modify the response,
-// // the return type should be `std::nullopt_t`,
-// // and the return value should be `std::nullopt`.
-// std::nullopt_t hello(
-// 	bserv::response_type& response,
-// 	std::shared_ptr<bserv::session_type> session_ptr) {
-// 	bserv::session_type& session = *session_ptr;
-// 	boost::json::object obj;
-// 	if (session.count("user")) {
-// 		// NOTE: modifications to sessions must be performed
-// 		// BEFORE referencing objects in them. this is because
-// 		// modifications might invalidate referenced objects.
-// 		// in this example, "count" might be added to `session`,
-// 		// which should be performed first.
-// 		// then `user` can be referenced safely.
-// 		if (!session.count("count")) {
-// 			session["count"] = 0;
-// 		}
-// 		auto& user = session["user"].as_object();
-// 		session["count"] = session["count"].as_int64() + 1;
-// 		obj = {
-// 			{"welcome", user["username"]},
-// 			{"count", session["count"]}
-// 		};
-// 	}
-// 	else {
-// 		obj = { {"msg", "hello, world!"} };
-// 	}
-// 	// the response body is a string,
-// 	// so the `obj` should be serialized
-// 	response.body() = boost::json::serialize(obj);
-// 	response.prepare_payload(); // this line is important!
-// 	return std::nullopt;
-// }
 
 // if you return a json object, the serialization
 // is performed automatically.
@@ -161,7 +135,7 @@ boost::json::object user_register(
 	if (opt_user.has_value()) {
 		return {
 			{"success", false},
-			{"message", "`username` existed"}
+			{"message", "`Username` exists"}
 		};
 	}
 	auto password = params["password"].as_string();
@@ -182,7 +156,51 @@ boost::json::object user_register(
 	tx.commit(); // you must manually commit changes
 	return {
 		{"success", true},
-		{"message", "user registered"}
+		{"message", "User registered"}
+	};
+}
+
+boost::json::object user_modify(
+	bserv::request_type& request,
+	// the json object is obtained from the request body,
+	// as well as the url parameters
+	boost::json::object&& params,
+	std::shared_ptr<bserv::db_connection> conn,
+	int user_id) {
+	if (request.method() != boost::beast::http::verb::post) {
+		throw bserv::url_not_found_exception{};
+	}
+	bserv::db_transaction tx{ conn };
+	auto opt_user = get_user_by_id(tx, user_id);
+	if (!opt_user.has_value()) {
+		return {
+			{"success", false},
+			{"message", "User does not exist"}
+		};
+	}
+	auto password = get_or_empty(params, "password");
+	bserv::db_result r = tx.exec(
+		"update ? "
+		"set username = COALESCE(NULLIF(?, ''), username), "
+		"password = COALESCE(NULLIF(?, ''), password), "
+		"first_name = COALESCE(NULLIF(?, ''), first_name), "
+		"last_name = COALESCE(NULLIF(?, ''), last_name), "
+		"email = COALESCE(NULLIF(?, ''), email), "
+		"roal = COALESCE(NULLIF(?, ''), roal) "
+		"where id = ?", bserv::db_name("auth_user"),
+		get_or_empty(params, "username"),
+		password.empty() ? password : bserv::utils::security::encode_password(
+			password.c_str()),
+		get_or_empty(params, "first_name"),
+		get_or_empty(params, "last_name"),
+		get_or_empty(params, "email"),
+		get_or_empty(params, "roal"),
+		user_id);
+	lginfo << r.query();
+	tx.commit(); // you must manually commit changes
+	return {
+		{"success", true},
+		{"message", "User modified"}
 	};
 }
 
@@ -324,26 +342,6 @@ std::nullopt_t serve_static_files(
 	return serve(response, path);
 }
 
-
-// std::nullopt_t index(
-// 	const std::string& template_path,
-// 	std::shared_ptr<bserv::session_type> session_ptr,
-// 	bserv::response_type& response,
-// 	boost::json::object& context) {
-// 	bserv::session_type& session = *session_ptr;
-// 	if (session.contains("user")) {
-// 		context["user"] = session["user"];
-// 	}
-// 	return render(response, template_path, context);
-// }
-
-// std::nullopt_t index_page(
-// 	std::shared_ptr<bserv::session_type> session_ptr,
-// 	bserv::response_type& response) {
-// 	boost::json::object context;
-// 	return index("index.html", session_ptr, response, context);
-// }
-
 std::nullopt_t index(
 	const std::string& template_path,
 	std::shared_ptr<bserv::session_type> session_ptr,
@@ -466,6 +464,18 @@ std::nullopt_t form_add_user(
 	std::shared_ptr<bserv::db_connection> conn,
 	std::shared_ptr<bserv::session_type> session_ptr) {
 	boost::json::object context = user_register(request, std::move(params), conn);
+	return redirect_to_users(conn, session_ptr, response, 1, std::move(context));
+}
+
+std::nullopt_t form_modify_user(
+	bserv::request_type& request,
+	bserv::response_type& response,
+	boost::json::object&& params,
+	std::shared_ptr<bserv::db_connection> conn,
+	std::shared_ptr<bserv::session_type> session_ptr,
+	const std::string& user_id) {
+	int usr_id = std::stoi(user_id);
+	boost::json::object context = user_modify(request, std::move(params), conn, usr_id);
 	return redirect_to_users(conn, session_ptr, response, 1, std::move(context));
 }
 
