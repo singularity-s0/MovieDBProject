@@ -62,6 +62,13 @@ boost::json::object find_movie(std::shared_ptr<bserv::db_connection> conn,
                                std::shared_ptr<bserv::session_type> session_ptr,
                                const std::string& moviename);
 
+std::optional<boost::json::object> get_movie(
+    bserv::db_transaction& tx,
+    const boost::json::string& moviename);
+
+std::optional<boost::json::object> get_movie_by_id(bserv::db_transaction& tx,
+                                                   const int movie_id);
+
 // websocket
 std::nullopt_t ws_echo(std::shared_ptr<bserv::session_type> session,
                        std::shared_ptr<bserv::websocket_server> ws_server);
@@ -126,3 +133,11 @@ std::nullopt_t redirect_to_movies(
     bserv::response_type& response,
     int page_id,
     boost::json::object&& context);
+
+std::nullopt_t buy_ticket_page(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& movie_id);

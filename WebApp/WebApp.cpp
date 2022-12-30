@@ -175,6 +175,14 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session,
 			bserv::placeholders::_1),
+
+		bserv::make_path("/buyticket/<int>", &buy_ticket_page,
+			bserv::placeholders::request,
+			bserv::placeholders::response,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::_1),
 		}
 		, {
 			// websocket example

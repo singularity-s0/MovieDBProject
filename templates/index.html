@@ -58,7 +58,10 @@
       <td>{{ movie.box_office_unit }}</td>
       <td>{{ movie.foreign_name }}</td>
       <td>{{ movie.location }}</td>
-      <td>{% if existsIn(permission, "modify_movie") %}<a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a>{% endif %}</td>
+      <td>
+        {% if existsIn(permission, "modify_movie") %}<a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a>{% endif %}
+        {% if exists("user") %}<a href="/buyticket/{{ movie.movie_id }}">Buy</a>{% else %}<a href="" data-bs-toggle="modal" data-bs-target="#loginModal">Login to Buy</a>{% endif %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
