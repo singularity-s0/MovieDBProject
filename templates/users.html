@@ -25,14 +25,6 @@
             <input type="text" class="form-control" id="username" name="username" placeholder="Username">
           </div>
           <div class="mb-3">
-            <label for="first_name" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name">
-          </div>
-          <div class="mb-3">
-            <label for="last_name" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name">
-          </div>
-          <div class="mb-3">
             <label for="email" class="form-label">Email address</label>
             <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com">
           </div>
@@ -57,23 +49,21 @@
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">#</th>
+      <th scope="col">UID</th>
       <th scope="col">Username</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
       <th scope="col">Email</th>
       <th scope="col">Roal</th>
+      <th scope="col">Action</th>
     </tr>
   </thead>
   <tbody>
     {% for user in users %}
     <tr style="vertical-align: middle;">
-      <th scope="row">{{ loop.index1 }}</th>
+      <th scope="row">{{ user.id }}</th>
       <td>{{ user.username }}</td>
-      <td>{{ user.first_name }}</td>
-      <td>{{ user.last_name }}</td>
       <td>{{ user.email }}</td>
       <td>{{ user.roal }}</td>
+      <td><a href="/users/modify/{{ user.id }}">Modify</a></td>
     </tr>
     {% endfor %}
   </tbody>

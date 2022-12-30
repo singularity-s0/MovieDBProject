@@ -97,4 +97,9 @@ std::nullopt_t form_add_movie(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr);
 
-
+std::nullopt_t redirect_to_movies(
+	std::shared_ptr<bserv::db_connection> conn,
+	std::shared_ptr<bserv::session_type> session_ptr,
+	bserv::response_type& response,
+	int page_id,
+	boost::json::object&& context);

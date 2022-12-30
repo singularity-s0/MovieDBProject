@@ -97,40 +97,40 @@ std::string get_or_empty(
 	return obj.count(key) ? obj[key].as_string().c_str() : "";
 }
 
-// if you want to manually modify the response,
-// the return type should be `std::nullopt_t`,
-// and the return value should be `std::nullopt`.
-std::nullopt_t hello(
-	bserv::response_type& response,
-	std::shared_ptr<bserv::session_type> session_ptr) {
-	bserv::session_type& session = *session_ptr;
-	boost::json::object obj;
-	if (session.count("user")) {
-		// NOTE: modifications to sessions must be performed
-		// BEFORE referencing objects in them. this is because
-		// modifications might invalidate referenced objects.
-		// in this example, "count" might be added to `session`,
-		// which should be performed first.
-		// then `user` can be referenced safely.
-		if (!session.count("count")) {
-			session["count"] = 0;
-		}
-		auto& user = session["user"].as_object();
-		session["count"] = session["count"].as_int64() + 1;
-		obj = {
-			{"welcome", user["username"]},
-			{"count", session["count"]}
-		};
-	}
-	else {
-		obj = { {"msg", "hello, world!"} };
-	}
-	// the response body is a string,
-	// so the `obj` should be serialized
-	response.body() = boost::json::serialize(obj);
-	response.prepare_payload(); // this line is important!
-	return std::nullopt;
-}
+// // if you want to manually modify the response,
+// // the return type should be `std::nullopt_t`,
+// // and the return value should be `std::nullopt`.
+// std::nullopt_t hello(
+// 	bserv::response_type& response,
+// 	std::shared_ptr<bserv::session_type> session_ptr) {
+// 	bserv::session_type& session = *session_ptr;
+// 	boost::json::object obj;
+// 	if (session.count("user")) {
+// 		// NOTE: modifications to sessions must be performed
+// 		// BEFORE referencing objects in them. this is because
+// 		// modifications might invalidate referenced objects.
+// 		// in this example, "count" might be added to `session`,
+// 		// which should be performed first.
+// 		// then `user` can be referenced safely.
+// 		if (!session.count("count")) {
+// 			session["count"] = 0;
+// 		}
+// 		auto& user = session["user"].as_object();
+// 		session["count"] = session["count"].as_int64() + 1;
+// 		obj = {
+// 			{"welcome", user["username"]},
+// 			{"count", session["count"]}
+// 		};
+// 	}
+// 	else {
+// 		obj = { {"msg", "hello, world!"} };
+// 	}
+// 	// the response body is a string,
+// 	// so the `obj` should be serialized
+// 	response.body() = boost::json::serialize(obj);
+// 	response.prepare_payload(); // this line is important!
+// 	return std::nullopt;
+// }
 
 // if you return a json object, the serialization
 // is performed automatically.
@@ -353,6 +353,9 @@ std::nullopt_t index(
 	if (session.contains("movie")) {
 		context["movie"] = session["movie"];
 	}
+	if (session.contains("user")) {
+		context["user"] = session["user"];
+	}
 	return render(response, template_path, context);
 }
 
@@ -372,7 +375,7 @@ std::nullopt_t form_login(
 	lgdebug << params << std::endl;
 	auto context = user_login(request, std::move(params), conn, session_ptr);
 	lginfo << "login: " << context << std::endl;
-	return index("index.html", session_ptr, response, context);
+	return redirect_to_movies(conn, session_ptr, response, 1, std::move(context));
 }
 
 std::nullopt_t form_logout(
@@ -473,7 +476,6 @@ std::optional<boost::json::object> get_movie(
 	lginfo << r.query(); 
 	return orm_movie.convert_to_optional(r);
 }
-
 
 boost::json::object movie_register(
 	bserv::request_type& request,

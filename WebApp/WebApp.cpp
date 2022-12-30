@@ -68,9 +68,9 @@ int main(int argc, char* argv[]) {
 
 	auto _ = bserv::server{ config, {
 		// rest api example
-		bserv::make_path("/hello", &hello,
-			bserv::placeholders::response,
-			bserv::placeholders::session),
+		// bserv::make_path("/hello", &hello,
+		// 	bserv::placeholders::response,
+		// 	bserv::placeholders::session),
 		bserv::make_path("/register", &user_register,
 			bserv::placeholders::request,
 			bserv::placeholders::json_params,
@@ -152,9 +152,6 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::json_params,
 			bserv::placeholders::db_connection_ptr,
 			bserv::placeholders::session),
-
-
-
 		}
 		, {
 			// websocket example
