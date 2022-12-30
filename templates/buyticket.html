@@ -1,6 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Movie{% endblock %}
+{% block title %}Buy ticket{% endblock %}
 
-{% block home_active %}active{% endblock %}
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+      <h1 class="display-5 fw-bold">Buy ticket for {{ movie.moviename }}</h1>
+      <p class="col-md-8 fs-4">Choose your time and seats</p>
 
+        <form method="post" action="/form_buyticket">
+            <div class="mb-3">
+            <label for="time" class="form-label">Time</label>
+            <select class="form-select" id="time" name="time">
+                {% for time in times %}
+                <option value="{{ time }}">{{ time }}</option>
+                {% endfor %}
+            </select>
+            </div>
+            <div class="mb-3">
+            <label for="seat" class="form-label">Seats</label>
+            <select class="form-select" id="time" name="time">
+                {% for seat in seats %}
+                <option value="{{ seat }}">{{ seat }}</option>
+                {% endfor %}
+            </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Buy</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

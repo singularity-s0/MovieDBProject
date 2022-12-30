@@ -32,6 +32,12 @@ std::nullopt_t buy_ticket_page(
         throw std::runtime_error("Invalid movie id");
     }
 
+    boost::json::array placeholder;
+    placeholder.push_back("123");
+
+    context["times"] = placeholder;
+    context["seats"] = placeholder;
+
     context["permission"] = get_permission_for_session(*session_ptr);
     return index("buyticket.html", session_ptr, response, context);
 }
