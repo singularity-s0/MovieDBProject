@@ -95,7 +95,7 @@
   <tbody>
     {% for movie in movies %}
     <tr style="vertical-align: middle;">
-      <th scope="row">{{ loop.index1 }}</th>
+      <th scope="row">{{ movie.movie_id }}</th>
       <td>{{ movie.moviename }}</td>
       <td>{{ movie.starname }}</td>
       <td>{{ movie.detail }}</td>
