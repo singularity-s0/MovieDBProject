@@ -90,10 +90,18 @@ boost::json::object movie_modify(bserv::request_type& request,
                                  // body, as well as the url parameters
                                  boost::json::object&& params,
                                  std::shared_ptr<bserv::db_connection> conn,
+                                 std::shared_ptr<bserv::session_type> session_ptr,
                                  int movie_id) {
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
+
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "modify_movie")) !=
+        std::nullopt) {
+        return p.value();
+    }
+
     bserv::db_transaction tx{conn};
     auto opt_movie = get_movie_by_id(tx, movie_id);
     if (!opt_movie.has_value()) {
@@ -238,7 +246,7 @@ std::nullopt_t form_modify_movie(
     const std::string& movie_id) {
     int mov_id = std::stoi(movie_id);
     boost::json::object context =
-        movie_modify(request, std::move(params), conn, mov_id);
+        movie_modify(request, std::move(params), conn, session_ptr, mov_id);
     return redirect_to_movies(conn, session_ptr, response, 1,
                               std::move(context));
 }

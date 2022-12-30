@@ -82,6 +82,20 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "barrier": "cpp",
+        "charconv": "cpp",
+        "cinttypes": "cpp",
+        "format": "cpp",
+        "forward_list": "cpp",
+        "latch": "cpp",
+        "numbers": "cpp",
+        "ranges": "cpp",
+        "semaphore": "cpp",
+        "shared_mutex": "cpp",
+        "span": "cpp",
+        "unordered_set": "cpp",
+        "valarray": "cpp",
+        "*.ipp": "cpp"
     }
 }
