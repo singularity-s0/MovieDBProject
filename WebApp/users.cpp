@@ -70,7 +70,14 @@ boost::json::object user_modify(bserv::request_type& request,
                                 // body, as well as the url parameters
                                 boost::json::object&& params,
                                 std::shared_ptr<bserv::db_connection> conn,
+                                std::shared_ptr<bserv::session_type> session_ptr,
                                 int user_id) {
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "modify_user")) !=
+        std::nullopt) {
+        return p.value();
+    }
+
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
@@ -141,7 +148,7 @@ boost::json::object find_user(std::shared_ptr<bserv::db_connection> conn,
     auto user = get_user(tx, username.c_str());
     if (!user.has_value()) {
         return {{"success", false},
-                {"message", "requested user does not exist"}};
+                {"message", "The requested user does not exist"}};
     }
     user.value().erase("id");
     user.value().erase("password");
@@ -184,6 +191,12 @@ std::nullopt_t redirect_to_users(
     bserv::response_type& response,
     int page_id,
     boost::json::object&& context) {
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "modify_user")) !=
+        std::nullopt) {
+        throw std::logic_error("Permission denied");
+    }
+
     lgdebug << "view users: " << page_id << std::endl;
     bserv::db_transaction tx{conn};
     bserv::db_result db_res = tx.exec("select count(*) from auth_user;");
@@ -237,6 +250,7 @@ std::nullopt_t redirect_to_users(
         context["pagination"] = pagination;
     }
     context["users"] = json_users;
+    context["permission"] = get_permission_for_session(*session_ptr);
     return index("users.html", session_ptr, response, context);
 }
 
@@ -268,9 +282,10 @@ std::nullopt_t form_modify_user(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr,
     const std::string& user_id) {
+    std::optional<boost::json::object> p;
     int usr_id = std::stoi(user_id);
     boost::json::object context =
-        user_modify(request, std::move(params), conn, usr_id);
+        user_modify(request, std::move(params), conn, session_ptr, usr_id);
     return redirect_to_users(conn, session_ptr, response, 1,
                              std::move(context));
 }

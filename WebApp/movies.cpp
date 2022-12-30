@@ -35,14 +35,19 @@ std::optional<boost::json::object> get_movie_by_id(bserv::db_transaction& tx,
     return orm_movie.convert_to_optional(r);
 }
 
-boost::json::object movie_register(bserv::request_type& request,
-                                   boost::json::object&& params,
-                                   std::shared_ptr<bserv::db_connection> conn) {
+boost::json::object movie_register(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
-    if (params.count("moviename") == 0) {
-        return {{"success", false}, {"message", "Movie name is required"}};
+
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "modify_movie")) !=
+        std::nullopt) {
+        return p.value();
     }
 
     auto moviename = params["moviename"].as_string();
@@ -54,7 +59,8 @@ boost::json::object movie_register(bserv::request_type& request,
     try {
         bserv::db_result r = tx.exec(
             "insert into ? "
-            "(moviename, starname, detail, running_time, type, avg_rating, poster,"
+            "(moviename, starname, detail, running_time, type, avg_rating, "
+            "poster,"
             "box_office, num_participants, release_date, box_office_unit,"
             "foreign_name, location) values "
             "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -122,6 +128,7 @@ boost::json::object movie_modify(bserv::request_type& request,
 }
 
 boost::json::object find_movie(std::shared_ptr<bserv::db_connection> conn,
+                               std::shared_ptr<bserv::session_type> session_ptr,
                                const std::string& moviename) {
     bserv::db_transaction tx{conn};
     auto movie = get_movie(tx, moviename.c_str());
@@ -192,6 +199,7 @@ std::nullopt_t redirect_to_movies(
         context["pagination"] = pagination;
     }
     context["movies"] = json_movies;
+    context["permission"] = get_permission_for_session(*session_ptr);
     return index("index.html", session_ptr, response, context);
 }
 
@@ -212,7 +220,7 @@ std::nullopt_t form_add_movie(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr) {
     boost::json::object context =
-        movie_register(request, std::move(params), conn);
+        movie_register(request, std::move(params), conn, session_ptr);
     return redirect_to_movies(conn, session_ptr, response, 1,
                               std::move(context));
 }

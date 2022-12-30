@@ -43,15 +43,18 @@
           <li class="nav-item">
             <a class="nav-link {% block home_active %}{% endblock %}" aria-current="page" href="/">Home</a>
           </li>
+          {% if existsIn(permission, "view_user") %}
           <li class="nav-item">
             <a class="nav-link {% block users_active %}{% endblock %}" href="/users">Users</a>
           </li>
+          {% endif %}
         </ul>
         {% if exists("user") %}
         <ul class="navbar-nav mb-2 mb-md-0">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="dropdown07XL" data-bs-toggle="dropdown" aria-expanded="false">{{ user.username }}</a>
             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="dropdown07XL">
+              <li><a class="dropdown-item" href="">Identity: {{ user.roal }}</a></li>
               <li><a class="dropdown-item" href="/form_logout">Logout</a></li>
             </ul>
           </li>

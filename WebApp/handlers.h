@@ -8,6 +8,10 @@
 
 #include "bserv/common.hpp"
 
+boost::json::object get_permission_for_session(boost::json::object session);
+bool check_permission(const boost::json::string& user_type, const boost::json::string& permission);
+std::optional<boost::json::object> check_session_permission(boost::json::object session, boost::json::string permission);
+                      
 std::string get_or_empty(boost::json::object& obj, const std::string& key);
 
 int get_stoi_or_zero(boost::json::object& obj, const std::string& key);
@@ -42,11 +46,14 @@ boost::json::object send_request(std::shared_ptr<bserv::session_type> session,
 
 boost::json::object echo(boost::json::object&& params);
 
-boost::json::object movie_register(bserv::request_type& request,
-                                   boost::json::object&& params,
-                                   std::shared_ptr<bserv::db_connection> conn);
+boost::json::object movie_register(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr);
 
 boost::json::object find_movie(std::shared_ptr<bserv::db_connection> conn,
+                               std::shared_ptr<bserv::session_type> session_ptr,
                                const std::string& moviename);
 
 // websocket

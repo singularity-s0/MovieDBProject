@@ -6,9 +6,11 @@
 
 {% block content %}
 <!-- Button trigger modal -->
+{% if existsIn(permission, "modify_user") %}
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
   Add User
 </button>
+{% endif %}
 
 <!-- Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
@@ -101,7 +103,9 @@
       <td>{{ user.username }}</td>
       <td>{{ user.email }}</td>
       <td>{{ user.roal }}</td>
+      {% if existsIn(permission, "modify_user") %}
       <td><a href="" data-bs-toggle="modal" data-bs-target="#userModifyModal{{user.id}}">Modify</a></td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
