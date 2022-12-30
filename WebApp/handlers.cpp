@@ -120,13 +120,13 @@ boost::json::object user_register(
 	if (params.count("username") == 0) {
 		return {
 			{"success", false},
-			{"message", "`username` is required"}
+			{"message", "Username is required"}
 		};
 	}
 	if (params.count("password") == 0) {
 		return {
 			{"success", false},
-			{"message", "`password` is required"}
+			{"message", "Password is required"}
 		};
 	}
 	auto username = params["username"].as_string();
@@ -135,7 +135,7 @@ boost::json::object user_register(
 	if (opt_user.has_value()) {
 		return {
 			{"success", false},
-			{"message", "`Username` exists"}
+			{"message", "Username exists"}
 		};
 	}
 	auto password = params["password"].as_string();
