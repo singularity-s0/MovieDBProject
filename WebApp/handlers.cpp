@@ -514,23 +514,21 @@ boost::json::object movie_register(
 
 	bserv::db_result r = tx.exec(
 		"insert into ? "
-		"(?, movie_id,  "
-		"starname, detail, duration, type, avg_rating, poster,"
-		"box_office, num_participants, release_date, box_office_unit"
+		"(?, starname, detail, running_time, type, avg_rating, poster,"
+		"box_office, num_participants, release_date, box_office_unit,"
 		"foreign_name, location) values "
-		"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", bserv::db_name("movies"),
+		"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", bserv::db_name("movies"),
 		bserv::db_name("moviename"),
-		moviename, 
-		get_or_empty(params, "movie_id"),
+		moviename,
 		get_or_empty(params, "starname"),
 		get_or_empty(params, "detail"),
-		get_or_empty(params, "duration"),
+		std::stoi(get_or_empty(params, "running_time")),
 		get_or_empty(params, "type"),
-		get_or_empty(params, "avg_rating"),
+		std::stoi(get_or_empty(params, "avg_rating")),
 		get_or_empty(params, "poster"),
-		get_or_empty(params, "box_office"),
-		get_or_empty(params, "num_participants"),
-		get_or_empty(params, "release_date"),
+		std::stoi(get_or_empty(params, "box_office")),
+		std::stoi(get_or_empty(params, "num_participants")),
+		std::stoi(get_or_empty(params, "release_date")),
 		get_or_empty(params, "box_office_unit"),
 		get_or_empty(params, "foreign_name"), 
 		get_or_empty(params, "location"));
