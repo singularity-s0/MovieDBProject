@@ -1,10 +1,9 @@
-add_executable(
-	WebApp
-	
-	handlers.cpp
-	rendering.cpp
-	WebApp.cpp
-)
+file(GLOB SRCFILES CONFIGURE_DEPENDS
+	"*.cpp"
+	"*.h"
+	)
+
+add_executable(WebApp ${SRCFILES})
 
 target_include_directories(
 	WebApp PUBLIC
