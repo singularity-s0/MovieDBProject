@@ -211,7 +211,7 @@ boost::json::object user_login(
     }
     bserv::session_type& session = *session_ptr;
     session["user"] = user;
-    return {{"success", true}, {"message", "login successfully"}};
+    return {{"success", true}, {"message", "Login successful"}};
 }
 
 boost::json::object find_user(std::shared_ptr<bserv::db_connection> conn,
@@ -233,7 +233,7 @@ boost::json::object user_logout(
     if (session.count("user")) {
         session.erase("user");
     }
-    return {{"success", true}, {"message", "logout successfully"}};
+    return {{"success", true}, {"message", "Logout successful"}};
 }
 
 boost::json::object send_request(std::shared_ptr<bserv::session_type> session,
