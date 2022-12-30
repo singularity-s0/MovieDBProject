@@ -28,6 +28,13 @@ std::optional<boost::json::object> get_movie(
     return orm_movie.convert_to_optional(r);
 }
 
+std::optional<boost::json::object> get_movie_by_id(bserv::db_transaction& tx,
+                                                  const int movie_id) {
+    bserv::db_result r = tx.exec("select * from movies where movie_id = ?", movie_id);
+    lginfo << r.query(); 
+    return orm_movie.convert_to_optional(r);
+}
+
 boost::json::object movie_register(bserv::request_type& request,
                                    boost::json::object&& params,
                                    std::shared_ptr<bserv::db_connection> conn) {
@@ -42,7 +49,7 @@ boost::json::object movie_register(bserv::request_type& request,
     bserv::db_transaction tx{conn};
     auto opt_movie = get_movie(tx, moviename);
     if (opt_movie.has_value()) {
-        return {{"success", false}, {"message", "Movie name existed"}};
+        return {{"success", false}, {"message", "Movie name exists"}};
     }
     try {
         bserv::db_result r = tx.exec(
@@ -69,6 +76,49 @@ boost::json::object movie_register(bserv::request_type& request,
         return {{"success", false}, {"message", e.what()}};
     }
     return {{"success", true}, {"message", "Movie registered"}};
+}
+
+boost::json::object movie_modify(bserv::request_type& request,
+                                // the json object is obtained from the request
+                                // body, as well as the url parameters
+                                boost::json::object&& params,
+                                std::shared_ptr<bserv::db_connection> conn,
+                                int movie_id) {
+    if (request.method() != boost::beast::http::verb::post) {
+        throw bserv::url_not_found_exception{};
+    }
+    bserv::db_transaction tx{conn};
+    auto opt_movie = get_movie_by_id(tx, movie_id);
+    if (!opt_movie.has_value()) {
+        return {{"success", false}, {"message", "Movie does not exist"}};
+    }
+    auto password = get_or_empty(params, "password");
+    bserv::db_result r = tx.exec(
+        "update ? "
+        "set moviename = COALESCE(NULLIF(?, ''), moviename), "
+        "starname = COALESCE(NULLIF(?, ''), starname), "
+        "detail = COALESCE(NULLIF(?, ''), detail), "
+        "running_time = COALESCE(NULLIF(?, ''), running_time), "
+        "type = COALESCE(NULLIF(?, ''), type), "
+        "avg_rating = COALESCE(NULLIF(?, ''), avg_rating) "
+        "poster = COALESCE(NULLIF(?, ''), poster) "
+        "box_office = COALESCE(NULLIF(?, ''), box_office) "
+        "num_participants = COALESCE(NULLIF(?, ''), num_participants) "
+        "release_date = COALESCE(NULLIF(?, ''), release_date) "
+        "box_office_unit = COALESCE(NULLIF(?, ''), box_office_unit) "
+        "foreign_name = COALESCE(NULLIF(?, ''), foreign_name) "
+        "location = COALESCE(NULLIF(?, ''), location) "
+        "where movie_id = ?",
+        bserv::db_name("movies"), get_or_empty(params, "moviename"),
+        get_or_empty(params, "starname"), get_or_empty(params, "detail"),
+        get_or_empty(params, "running_time"), get_or_empty(params, "type"),
+        get_or_empty(params, "avg_rating"),get_or_empty(params, "poster"), 
+        get_or_empty(params, "box_office"), get_or_empty(params, "num_participants"),
+        get_or_empty(params, "release_date"), get_or_empty(params, "box_office_unit"), 
+        get_or_empty(params, "foreign_name"),get_or_empty(params, "location"), movie_id);
+    lginfo << r.query();
+    tx.commit();  // you must manually commit changes
+    return {{"success", true}, {"message", "Movie modified"}};
 }
 
 boost::json::object find_movie(std::shared_ptr<bserv::db_connection> conn,
@@ -165,4 +215,18 @@ std::nullopt_t form_add_movie(
         movie_register(request, std::move(params), conn);
     return redirect_to_movies(conn, session_ptr, response, 1,
                               std::move(context));
+}
+
+std::nullopt_t form_modify_movie(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& movie_id) {
+    int mov_id = std::stoi(movie_id);
+    boost::json::object context =
+        movie_modify(request, std::move(params), conn, mov_id);
+    return redirect_to_movies(conn, session_ptr, response, 1,
+                             std::move(context));
 }

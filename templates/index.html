@@ -34,6 +34,7 @@
       <th scope="col">Box office unit</th>
       <th scope="col">Foreign name</th>
       <th scope="col">Location</th>
+      <th scope="col">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -53,6 +54,7 @@
       <td>{{ movie.box_office_unit }}</td>
       <td>{{ movie.foreign_name }}</td>
       <td>{{ movie.location }}</td>
+      <td><a href="" data-bs-toggle="modal" data-bs-target="#movieModifyModal{{movie.movie_id}}">Modify</a></td>
     </tr>
     {% endfor %}
   </tbody>
@@ -158,6 +160,65 @@
     </div>
   </div>
 </div>
+
+<!-- Modify -->
+{% for movie in movies %}
+<div class="modal fade" id="movieModifyModal{{movie.movie_id}}" tabindex="-1" aria-labelledby="movieModifyModalLabel{{movie.movie_id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/form_modify_movie/{{movie.movie_id}}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="movieModalLabel">Modify Movie {{movie.moviename}}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="moviename" class="form-label">Moviename</label>
+            <input type="text" class="form-control" id="moviename" name="moviename" placeholder="{{movie.moviename}}">
+          </div>
+          <div class="mb-3">
+            <label for="starname" class="form-label">Star</label>
+            <input type="text" class="form-control" id="starname" name="starname" placeholder="{{movie.starname}}">
+          </div>
+          <div class="mb-3">
+            <label for="detail" class="form-label">Detail</label>
+            <input type="text" class="form-control" id="detail" name="detail" placeholder="{{movie.detail}}">
+          </div>
+          <div class="mb-3">
+            <label for="running_time" class="form-label">Length</label>
+            <input type="text" class="form-control" id="running_time" name="running_time" placeholder="{{movie.running_time}}">
+          </div>
+          <div class="mb-3">
+            <label for="type" class="form-label">Type</label>
+            <input type="text" class="form-label" id="type" name="type" placeholder="{{movie.type}}">
+          </div>
+          <div class="mb-3">
+            <label for="poster" class="form-label">Poster</label>
+            <input type="poster" class="caption" id="poster" name="poster" placeholder="{{movie.poster}}">
+          </div>
+          <div class="mb-3">
+            <label for="release_date" class="form-label">Release Date</label>
+            <input type="text" class="form-control" id="release_date" name="xxxx/xx/xx" placeholder="{{movie.release_date}}"> 
+          </div>
+          <div class="mb-3">
+            <label for="foreign_name" class="form-label">Foreign Name</label>
+            <input type="text" class="form-label" id="foreign_name" name="foreign_name" placeholder="{{movie.foreign_name}}">
+          </div>
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-label" id="location" name="location" placeholder="{{movie.location}}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Modify</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 
 <!-- 
 <div class="row align-items-md-stretch">
