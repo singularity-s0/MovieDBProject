@@ -52,9 +52,11 @@
             <a class="nav-link {% block users_active %}{% endblock %}" href="/users">Users</a>
           </li>
           {% endif %}
+          {% if exists("user") %}
           <li class="nav-item">
             <a class="nav-link {% block mycenter_active %}{% endblock %}" aria-current="page" href="/mycenter">My Center</a>
           </li>
+          {% endif %}
         </ul>
         {% if exists("user") %}
         <ul class="navbar-nav mb-2 mb-md-0">
