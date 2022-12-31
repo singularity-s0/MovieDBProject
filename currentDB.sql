@@ -68,7 +68,9 @@ CREATE TABLE public.auth_user (
     last_name character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
     is_active boolean NOT NULL,
-    roal character varying(255) NOT NULL
+    roal character varying(255) NOT NULL,
+    balance numeric DEFAULT 0.00 NOT NULL,
+    CONSTRAINT nonnegative CHECK ((balance >= (0)::numeric))
 );
 
 
@@ -151,7 +153,8 @@ CREATE TABLE public.movies (
     release_date integer,
     box_office_unit character varying(255),
     foreign_name character varying(255),
-    location character varying(255)
+    location character varying(255),
+    reviewed boolean DEFAULT false
 );
 
 
@@ -439,10 +442,10 @@ COPY public.announcements (id, title, content) FROM stdin;
 -- Data for Name: auth_user; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.auth_user (id, username, password, is_superuser, first_name, last_name, email, is_active, roal) FROM stdin;
-1	admin	9yod80hbsscwIp7v$ncDRV6rkxLm9CfZE0+8+Pi5ZrsaV42powxsuQJ07qvo=	f			admin@zxj.com	t	admin
-2	zxj	r0LX03ExdhaFgy55$NBt4x38HXuDC3KmUiFpx0d1yb+613foVNRutzg/KmZI=	f			zxj@zxj.com	t	user
-9	wzy	bDuRW5trSbQoPYnp$vNMMZ2qYJNFG3DI3odfJOMQLkmOmNSSYer7sJNz30k8=	f			wzy@wzy.com	t	user
+COPY public.auth_user (id, username, password, is_superuser, first_name, last_name, email, is_active, roal, balance) FROM stdin;
+1	admin	9yod80hbsscwIp7v$ncDRV6rkxLm9CfZE0+8+Pi5ZrsaV42powxsuQJ07qvo=	f			admin@zxj.com	t	admin	0.00
+2	zxj	r0LX03ExdhaFgy55$NBt4x38HXuDC3KmUiFpx0d1yb+613foVNRutzg/KmZI=	f			zxj@zxj.com	t	user	0.00
+9	wzy	bDuRW5trSbQoPYnp$vNMMZ2qYJNFG3DI3odfJOMQLkmOmNSSYer7sJNz30k8=	f			wzy@wzy.com	t	user	0.00
 \.
 
 
@@ -461,9 +464,9 @@ COPY public.comments (comment_id, id, movie_id, rating, content) FROM stdin;
 -- Data for Name: movies; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.movies (movie_id, moviename, starname, detail, running_time, type, avg_rating, poster, box_office, num_participants, release_date, box_office_unit, foreign_name, location) FROM stdin;
-1	Avatar	James Cameron	The Ways of Water	120	Sci-fi	2.5000000000000000		60	3	2022		A	Shanghai
-2	Wandering Earth	Wu Jing	A Chinese Sci-fi Movie	130	Sci-fi	4.0000000000000000		20	1	2021		WE	Shanghai
+COPY public.movies (movie_id, moviename, starname, detail, running_time, type, avg_rating, poster, box_office, num_participants, release_date, box_office_unit, foreign_name, location, reviewed) FROM stdin;
+1	Avatar	James Cameron	The Ways of Water	120	Sci-fi	2.5000000000000000		60	3	2022		A	Shanghai	f
+2	Wandering Earth	Wu Jing	A Chinese Sci-fi Movie	130	Sci-fi	4.0000000000000000		20	1	2021		WE	Shanghai	f
 \.
 
 
