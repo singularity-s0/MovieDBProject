@@ -12,6 +12,7 @@ bserv::db_relation_to_object orm_ticket{
     bserv::make_db_field<int>("screening_id"),
     bserv::make_db_field<int>("seat_id"),
     bserv::make_db_field<int>("price"),
+    bserv::make_db_field<bool>("refunded"),
 };
 
 bserv::db_relation_to_object orm_seats{
@@ -113,7 +114,7 @@ boost::json::object buy_ticket(
         throw bserv::url_not_found_exception{};
     }
     if (!check_logged_in(*session_ptr)) {
-        throw std::runtime_error("You must log in to buy tickets");
+        return {{"success", false}, {"message", "Not logged in"}};
     }
 
     boost::json::object session = *session_ptr;
@@ -128,7 +129,7 @@ boost::json::object buy_ticket(
     lginfo << r.query();
     auto seats = orm_seats.convert_to_vector(r);
     if (seats.size() != 1) {
-        throw std::runtime_error("Invalid query result");
+        return {{"success", false}, {"message", "Invalid seat"}};
     }
     auto seat_id = seats[0]["seat_id"].as_int64();
 
@@ -137,7 +138,7 @@ boost::json::object buy_ticket(
     lginfo << r.query();
     auto screenings = orm_screening.convert_to_vector(r);
     if (screenings.size() != 1) {
-        throw std::runtime_error("Invalid query result");
+        return {{"success", false}, {"message", "Invalid screening id"}};
     }
     auto price = screenings[0]["price"].as_int64();
 
@@ -156,6 +157,41 @@ boost::json::object buy_ticket(
     return {{"success", true}, {"message", "Ticket bought"}};
 }
 
+boost::json::object refund_ticket(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& ticket_id) {
+    if (request.method() != boost::beast::http::verb::post) {
+        throw bserv::url_not_found_exception{};
+    }
+    if (!check_logged_in(*session_ptr)) {
+        return {{"success", false}, {"message", "You must log in to refund tickets"}};
+    }
+    boost::json::object session = *session_ptr;
+    boost::json::object user = session["user"].as_object();
+    int user_id = user["id"].as_int64();
+
+    bserv::db_transaction tx{conn};
+    // Verify that the ticket belongs to the user
+    bserv::db_result r = tx.exec("select * from tickets where ticket_id = ?;", ticket_id);
+    lginfo << r.query();
+    auto tickets = orm_ticket.convert_to_vector(r);
+    if (tickets.size() != 1) {
+        return {{"success", false}, {"message", "Invalid ticket id"}};
+    }
+    auto ticket = tickets[0];
+    if (ticket["user_id"].as_int64() != user_id) {
+        return {{"success", false}, {"message", "You do not own this ticket"}};
+    }
+    // Set ticket to refunded
+    r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);
+    lginfo << r.query();
+    tx.commit();
+    return {{"success", true}, {"message", "Ticket refunded"}};
+}
+
 std::nullopt_t form_buy_ticket(
     bserv::request_type& request,
     bserv::response_type& response,
@@ -164,6 +200,19 @@ std::nullopt_t form_buy_ticket(
     std::shared_ptr<bserv::session_type> session_ptr) {
     boost::json::object context =
         buy_ticket(request, std::move(params), conn, session_ptr);
+    return redirect_to_mycenter(conn, session_ptr, response,
+                              std::move(context));
+}
+
+std::nullopt_t form_refund_ticket(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& ticket_id) {
+    boost::json::object context =
+        refund_ticket(request, std::move(params), conn, session_ptr, ticket_id);
     return redirect_to_mycenter(conn, session_ptr, response,
                               std::move(context));
 }
