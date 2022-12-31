@@ -6,7 +6,7 @@
 
 {% block content %}
 <!-- Button trigger modal -->
-<p class="col-md-8 fs-4">My Tickets</p>\
+<p class="col-md-8 fs-4">My Tickets</p>
 
 <table class="table">
     <thead>
@@ -24,7 +24,7 @@
         <tr>
         <td>{{ ticket.ticket_id }}</td>
         <td>{{ ticket.time }}</td>
-        <td>{{ ticket.seat }}</td>
+        <td>{{ ticket.seat_id }}</td>
         <td>{{ ticket.room_id }}</td>
         <td>{{ ticket.price }}</td>
         <td>
@@ -57,5 +57,6 @@
     </div>
   </div>
 </div>
+{% endfor %}
 
 {% endblock %}

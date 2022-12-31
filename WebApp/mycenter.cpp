@@ -15,11 +15,10 @@ std::nullopt_t redirect_to_mycenter(
         throw std::runtime_error("Not logged in");
     }
     boost::json::object user = session["user"].as_object();
-    boost::json::string id = user["id"].as_string();
-    int uid = std::stoi(id.c_str());
+    int uid = user["id"].as_int64();
 
     bserv::db_transaction tx{conn};
-    bserv::db_result db_res = tx.exec("select * from tickets where tickets.id=?;", uid);
+    bserv::db_result db_res = tx.exec("select * from tickets where tickets.user_id=?;", uid);
     lginfo << db_res.query();
     auto tickets = orm_ticket.convert_to_vector(db_res);
     boost::json::array json_tickets;
