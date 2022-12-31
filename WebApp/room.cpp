@@ -6,7 +6,7 @@ bserv::db_relation_to_object orm_screening_room{
     bserv::make_db_field<int>("room_id"),
     bserv::make_db_field<std::string>("room_name"),
     bserv::make_db_field<int>("theater_id"),
-    bserv::make_db_field<std::string>("capacity"),
+    bserv::make_db_field<int>("capacity"),
 };
 
 

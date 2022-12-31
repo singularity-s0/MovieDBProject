@@ -260,4 +260,5 @@ std::nullopt_t form_refund_ticket(
     bserv::response_type& response,
     boost::json::object&& params,
     std::shared_ptr<bserv::db_connection> conn,
-    std::shared_ptr<bserv::session_type> session_ptr);
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& ticket_id);

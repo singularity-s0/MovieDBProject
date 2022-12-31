@@ -62,7 +62,7 @@
             <label for="room" class="form-label">Room</label>
             <select class="form-select" aria-label="room-select" name="room_id">
                 {% for room in rooms %}
-                <option value="{{ room.room_id }}" {% if room.room_id == screening.room_id %} selected {% endif %}>{{ room.room_name }}</option>
+                <option value="{{ room.room_id }}" {% if room.room_id == screening.room_id %} selected {% endif %}>{{ room.room_name }} - Capacity {{ room.capacity }}</option>
                 {% endfor %}
             </select>
           </div>
@@ -104,7 +104,7 @@
               <label for="room" class="form-label">Room</label>
               <select class="form-select" aria-label="room-select" name="room_id">
                   {% for room in rooms %}
-                  <option value="{{ room.room_id }}">{{ room.room_name }}</option>
+                  <option value="{{ room.room_id }}">{{ room.room_name }} - Capacity {{ room.capacity }}</option>
                   {% endfor %}
               </select>
             </div>

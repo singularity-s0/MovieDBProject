@@ -35,8 +35,9 @@ std::nullopt_t redirect_to_mycenter(
     lginfo << db_res.query();
     auto tickets = orm_full_ticket_info.convert_to_vector(db_res);
     boost::json::array json_tickets;
+    boost::json::string space = " ";
     for (auto& ticket : tickets) {
-        ticket["time"] = ticket["showing_date"].as_string() + " " + ticket["time"].as_string();
+        ticket["time"] = ticket["showing_date"].as_string().append(space).append(ticket["time"].as_string());
         json_tickets.push_back(ticket);
     }
     context["tickets"] = json_tickets;

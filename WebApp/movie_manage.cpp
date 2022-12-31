@@ -12,6 +12,10 @@ bserv::db_relation_to_object orm_screening{
     bserv::make_db_field<std::string>("showing_date"),
 };
 
+bserv::db_relation_to_object orm_last_insert_id{
+    bserv::make_db_field<int>("screening_id"),
+};
+
 std::nullopt_t manage_movie_page(
     bserv::request_type& request,
     bserv::response_type& response,
@@ -49,12 +53,15 @@ std::nullopt_t manage_movie_page(
     }
     context["screenings"] = json_screenings;
 
-    boost::json::array placeholder;
-    boost::json::object placeholder_obj;
-    placeholder_obj["room_id"] = 1;
-    placeholder_obj["room_name"] = "Room 1";
-    placeholder.push_back(placeholder_obj);
-    context["rooms"] = placeholder;
+    // Get rooms
+    db_res = tx.exec("select * from screening_rooms;");
+    lginfo << db_res.query();
+    auto screening_rooms = orm_screening_room.convert_to_vector(db_res);
+    boost::json::array json_screening_rooms;
+    for (auto& screening_room : screening_rooms) {
+        json_screening_rooms.push_back(screening_room);
+    }
+    context["rooms"] = json_screening_rooms;
 
     context["permission"] = get_permission_for_session(*session_ptr);
     return index("managemovie.html", session_ptr, response, context);
@@ -90,21 +97,36 @@ std::nullopt_t form_add_screening(
         bserv::db_result r = tx.exec(
             "insert into screenings (room_id, movie_id, time, price, "
             "showing_date) "
-            "values (?, ?, ?, ?, ?);",
+            "values (?, ?, ?, ?, ?) returning screening_id;",
             get_stoi_or_zero(params, "room_id"), std::stoi(movie_id),
             get_or_empty(params, "time"), get_or_empty(params, "price"),
             get_or_empty(params, "date"));
         lginfo << r.query();
+        // Get the last inserted id
+        auto last_insert_id = orm_last_insert_id.convert_to_vector(r);
+        if (last_insert_id.size() != 1) {
+            throw std::runtime_error("Invalid last insert id");
+        }
+        int screening_id = last_insert_id[0]["screening_id"].as_int64();
 
-        bserv::db_result res =
-        tx.exec("select * from screening_rooms where room_id = ?", get_stoi_or_zero(params, "room_id"));
-        auto room = orm_screening_room.convert_to_vector(res);
-        for(int i = 0; i < room["capacity"]; i++){
-            bserv::db_result r = tx.exec(
-                "insert into seats (screening_id, seat_name, user_id) "
-                "values (?, ?, ?);",
-                get_stoi_or_zero(params, "screening_id"), std::to_string(room["capacity"]),
-                get_stoi_or_zero(params, "user_id"));
+        // Also insert seats for this screening
+        // The amount of seats inserted is equal to thr room capacity
+        r = tx.exec(
+            "select * from screening_rooms where room_id = ?;",
+            get_stoi_or_zero(params, "room_id"));
+        lginfo << r.query();
+        auto room = orm_screening_room.convert_to_vector(r);
+        if (room.size() != 1) {
+            throw std::runtime_error("Invalid room id");
+        }
+        int room_capacity = room[0]["capacity"].as_int64();
+        for (int i = 0; i < room_capacity; i++) {
+            // User_id should be null
+            // Seat name should be #i
+            r = tx.exec(
+                "insert into seats (screening_id, seat_name) "
+                "values (?, ?);",
+                screening_id, "#" + std::to_string(i+1));
             lginfo << r.query();
         }
         
@@ -112,8 +134,6 @@ std::nullopt_t form_add_screening(
     } catch (const std::exception& e) {
         throw std::runtime_error(e.what());
     }
-
-
 
     return manage_movie_page(request, response, std::move(params), conn,
                              session_ptr, movie_id);
