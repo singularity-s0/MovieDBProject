@@ -1,6 +1,7 @@
 #include <vector>
 #include "handlers.h"
 #include "rendering.h"
+extern bserv::db_relation_to_object orm_screening_room;
 
 bserv::db_relation_to_object orm_screening{
     bserv::make_db_field<int>("screening_id"),
@@ -94,10 +95,25 @@ std::nullopt_t form_add_screening(
             get_or_empty(params, "time"), get_or_empty(params, "price"),
             get_or_empty(params, "date"));
         lginfo << r.query();
+
+        bserv::db_result res =
+        tx.exec("select * from screening_rooms where room_id = ?", get_stoi_or_zero(params, "room_id"));
+        auto room = orm_screening_room.convert_to_vector(res);
+        for(int i = 0; i < room["capacity"]; i++){
+            bserv::db_result r = tx.exec(
+                "insert into seats (screening_id, seat_name, user_id) "
+                "values (?, ?, ?);",
+                get_stoi_or_zero(params, "screening_id"), std::to_string(room["capacity"]),
+                get_stoi_or_zero(params, "user_id"));
+            lginfo << r.query();
+        }
+        
         tx.commit();
     } catch (const std::exception& e) {
         throw std::runtime_error(e.what());
     }
+
+
 
     return manage_movie_page(request, response, std::move(params), conn,
                              session_ptr, movie_id);

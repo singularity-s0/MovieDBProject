@@ -298,7 +298,8 @@ CREATE TABLE public.tickets (
     user_id integer NOT NULL,
     screening_id integer NOT NULL,
     seat_id integer NOT NULL,
-    price integer NOT NULL
+    price integer NOT NULL,
+    refunded boolean
 );
 
 
@@ -453,7 +454,7 @@ COPY public.theaters (theater_id, theater_name, theater_address) FROM stdin;
 -- Data for Name: tickets; Type: TABLE DATA; Schema: public; Owner: wangziyi
 --
 
-COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price) FROM stdin;
+COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded) FROM stdin;
 \.
 
 
