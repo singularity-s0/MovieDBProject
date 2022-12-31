@@ -238,6 +238,10 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::session,
 			bserv::placeholders::_1),
 
+		bserv::make_path("/mycenter", &view_mycenter,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::response),
 		}
 		, {
 			// websocket example
