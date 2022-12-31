@@ -30,16 +30,17 @@ std::optional<boost::json::object> get_user_by_id(bserv::db_transaction& tx,
     return orm_user.convert_to_optional(r);
 }
 
-boost::json::object user_register(bserv::request_type& request,
-                                  // the json object is obtained from the
-                                  // request body, as well as the url parameters
-                                  boost::json::object&& params,
-                                  std::shared_ptr<bserv::db_connection> conn,
-                                  std::shared_ptr<bserv::session_type> session_ptr,
-                                  bool regular_user = false) {
+boost::json::object user_register(
+    bserv::request_type& request,
+    // the json object is obtained from the
+    // request body, as well as the url parameters
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    bool regular_user = false) {
     std::optional<boost::json::object> p;
-    if (!regular_user && (p = check_session_permission(*session_ptr, "modify_user")) !=
-        std::nullopt) {
+    if (!regular_user && (p = check_session_permission(
+                              *session_ptr, "modify_user")) != std::nullopt) {
         return p.value();
     }
 
@@ -77,13 +78,14 @@ boost::json::object user_register(bserv::request_type& request,
     return {{"success", true}, {"message", "User registered"}};
 }
 
-boost::json::object user_modify(bserv::request_type& request,
-                                // the json object is obtained from the request
-                                // body, as well as the url parameters
-                                boost::json::object&& params,
-                                std::shared_ptr<bserv::db_connection> conn,
-                                std::shared_ptr<bserv::session_type> session_ptr,
-                                int user_id) {
+boost::json::object user_modify(
+    bserv::request_type& request,
+    // the json object is obtained from the request
+    // body, as well as the url parameters
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    int user_id) {
     std::optional<boost::json::object> p;
     if ((p = check_session_permission(*session_ptr, "modify_user")) !=
         std::nullopt) {
@@ -184,16 +186,17 @@ std::nullopt_t form_login(bserv::request_type& request,
     lgdebug << params << std::endl;
     auto context = user_login(request, std::move(params), conn, session_ptr);
     lginfo << "login: " << context << std::endl;
-    return redirect_to_movies(conn, session_ptr, response, 1,
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
 }
 
 std::nullopt_t form_logout(std::shared_ptr<bserv::db_connection> conn,
+                           boost::json::object&& params,
                            std::shared_ptr<bserv::session_type> session_ptr,
                            bserv::response_type& response) {
     auto context = user_logout(session_ptr);
     lginfo << "logout: " << context << std::endl;
-    return redirect_to_movies(conn, session_ptr, response, 1,
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
 }
 
@@ -294,8 +297,10 @@ std::nullopt_t form_register(bserv::request_type& request,
                              std::shared_ptr<bserv::session_type> session_ptr) {
     boost::json::object context =
         user_register(request, std::move(params), conn, session_ptr, true);
-    return redirect_to_movies(conn, session_ptr, response, 1,
-                             std::move(context)); // Regular users don't have permission to view user page
+    return redirect_to_movies(
+        conn, std::move(params), session_ptr, response, 1,
+        std::move(
+            context));  // Regular users don't have permission to view user page
 }
 
 std::nullopt_t form_modify_user(

@@ -2,6 +2,8 @@
 #include "handlers.h"
 #include "rendering.h"
 
+#include <iostream>
+
 bserv::db_relation_to_object orm_movie{
     bserv::make_db_field<int>("movie_id"),
     bserv::make_db_field<std::string>("moviename"),
@@ -154,13 +156,22 @@ boost::json::object find_movie(std::shared_ptr<bserv::db_connection> conn,
 
 std::nullopt_t redirect_to_movies(
     std::shared_ptr<bserv::db_connection> conn,
+    boost::json::object&& params,
     std::shared_ptr<bserv::session_type> session_ptr,
     bserv::response_type& response,
     int page_id,
     boost::json::object&& context) {
     lgdebug << "view movies: " << page_id << std::endl;
+
+    // Search
+    auto search_kw = get_or_empty(params, "s");
+    std::string search_query = "%";
+    search_query.append(search_kw);
+    search_query.append("%");
+
     bserv::db_transaction tx{conn};
-    bserv::db_result db_res = tx.exec("select count(*) from movies;");
+    bserv::db_result db_res = tx.exec("select count(*) from movies where "
+                                      "moviename like ?", search_query);
     lginfo << db_res.query();
     std::size_t total_movies = (*db_res.begin())[0].as<std::size_t>();
     lgdebug << "total movies: " << total_movies << std::endl;
@@ -169,7 +180,7 @@ std::nullopt_t redirect_to_movies(
         ++total_pages;
     lgdebug << "total pages: " << total_pages << std::endl;
     db_res =
-        tx.exec("select * from movies limit 10 offset ?;", (page_id - 1) * 10);
+        tx.exec("select * from movies where moviename like ? limit 10 offset ?;", search_query, (page_id - 1) * 10);
     lginfo << db_res.query();
     auto movies = orm_movie.convert_to_vector(db_res);
     boost::json::array json_movies;
@@ -216,12 +227,13 @@ std::nullopt_t redirect_to_movies(
 }
 
 std::nullopt_t view_movies(std::shared_ptr<bserv::db_connection> conn,
+                           boost::json::object&& params,
                            std::shared_ptr<bserv::session_type> session_ptr,
                            bserv::response_type& response,
                            const std::string& page_num) {
     int page_id = std::stoi(page_num);
     boost::json::object context;
-    return redirect_to_movies(conn, session_ptr, response, page_id,
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, page_id,
                               std::move(context));
 }
 
@@ -233,7 +245,7 @@ std::nullopt_t form_add_movie(
     std::shared_ptr<bserv::session_type> session_ptr) {
     boost::json::object context =
         movie_register(request, std::move(params), conn, session_ptr);
-    return redirect_to_movies(conn, session_ptr, response, 1,
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
 }
 
@@ -247,6 +259,6 @@ std::nullopt_t form_modify_movie(
     int mov_id = std::stoi(movie_id);
     boost::json::object context =
         movie_modify(request, std::move(params), conn, session_ptr, mov_id);
-    return redirect_to_movies(conn, session_ptr, response, 1,
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
 }

@@ -2,6 +2,7 @@
 #include <vector>
 #include <boost/json.hpp>
 #include <boost/assign.hpp>
+#include <iostream>
 
 // Only list permissions whose value is true
 std::map<boost::json::string, bool> user_perms = boost::assign::map_list_of ("add_comment", true);
