@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.5 (Homebrew)
--- Dumped by pg_dump version 14.5 (Homebrew)
+-- Dumped from database version 14.6 (Homebrew)
+-- Dumped by pg_dump version 14.6 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -189,7 +189,7 @@ CREATE TABLE public.screenings (
     room_id integer NOT NULL,
     movie_id integer NOT NULL,
     "time" character varying(255),
-    price character varying(255),
+    price integer,
     showing_date character varying(255)
 );
 
@@ -219,7 +219,7 @@ ALTER SEQUENCE public.screenings_screening_id_seq OWNED BY public.screenings.scr
 
 
 --
--- Name: seats; Type: TABLE; Schema: public; Owner: wangziyi
+-- Name: seats; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.seats (
@@ -230,10 +230,10 @@ CREATE TABLE public.seats (
 );
 
 
-ALTER TABLE public.seats OWNER TO wangziyi;
+ALTER TABLE public.seats OWNER TO postgres;
 
 --
--- Name: seats_seat_id_seq; Type: SEQUENCE; Schema: public; Owner: wangziyi
+-- Name: seats_seat_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.seats_seat_id_seq
@@ -245,10 +245,10 @@ CREATE SEQUENCE public.seats_seat_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.seats_seat_id_seq OWNER TO wangziyi;
+ALTER TABLE public.seats_seat_id_seq OWNER TO postgres;
 
 --
--- Name: seats_seat_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wangziyi
+-- Name: seats_seat_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.seats_seat_id_seq OWNED BY public.seats.seat_id;
@@ -290,7 +290,7 @@ ALTER SEQUENCE public.theaters_theater_id_seq OWNED BY public.theaters.theater_i
 
 
 --
--- Name: tickets; Type: TABLE; Schema: public; Owner: wangziyi
+-- Name: tickets; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.tickets (
@@ -299,14 +299,14 @@ CREATE TABLE public.tickets (
     screening_id integer NOT NULL,
     seat_id integer NOT NULL,
     price integer NOT NULL,
-    refunded boolean
+    refunded boolean NOT NULL
 );
 
 
-ALTER TABLE public.tickets OWNER TO wangziyi;
+ALTER TABLE public.tickets OWNER TO postgres;
 
 --
--- Name: tickets_ticket_id_seq; Type: SEQUENCE; Schema: public; Owner: wangziyi
+-- Name: tickets_ticket_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.tickets_ticket_id_seq
@@ -318,10 +318,10 @@ CREATE SEQUENCE public.tickets_ticket_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.tickets_ticket_id_seq OWNER TO wangziyi;
+ALTER TABLE public.tickets_ticket_id_seq OWNER TO postgres;
 
 --
--- Name: tickets_ticket_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: wangziyi
+-- Name: tickets_ticket_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.tickets_ticket_id_seq OWNED BY public.tickets.ticket_id;
@@ -363,7 +363,7 @@ ALTER TABLE ONLY public.screenings ALTER COLUMN screening_id SET DEFAULT nextval
 
 
 --
--- Name: seats seat_id; Type: DEFAULT; Schema: public; Owner: wangziyi
+-- Name: seats seat_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.seats ALTER COLUMN seat_id SET DEFAULT nextval('public.seats_seat_id_seq'::regclass);
@@ -377,7 +377,7 @@ ALTER TABLE ONLY public.theaters ALTER COLUMN theater_id SET DEFAULT nextval('pu
 
 
 --
--- Name: tickets ticket_id; Type: DEFAULT; Schema: public; Owner: wangziyi
+-- Name: tickets ticket_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets ALTER COLUMN ticket_id SET DEFAULT nextval('public.tickets_ticket_id_seq'::regclass);
@@ -388,7 +388,6 @@ ALTER TABLE ONLY public.tickets ALTER COLUMN ticket_id SET DEFAULT nextval('publ
 --
 
 COPY public.auth_user (id, username, password, is_superuser, first_name, last_name, email, is_active, roal) FROM stdin;
-4	a	L0Od3ZsDr36KOiVN$J8ISpjF7mLmRCq8cXe1PJISCaCEiOM4ERBpVWWCWmFI=	f	b	c	name@qq.com	t	1
 1	admin	9yod80hbsscwIp7v$ncDRV6rkxLm9CfZE0+8+Pi5ZrsaV42powxsuQJ07qvo=	f			admin@zxj.com	t	admin
 2	zxj	r0LX03ExdhaFgy55$NBt4x38HXuDC3KmUiFpx0d1yb+613foVNRutzg/KmZI=	f			zxj@zxj.com	t	user
 \.
@@ -419,6 +418,7 @@ COPY public.screening_rooms (room_id, room_name, theater_id, capacity) FROM stdi
 1	Room 1	1	30
 3	IMAX	1	20
 4	THX	1	20
+5	Room with seats	1	20
 \.
 
 
@@ -427,17 +427,35 @@ COPY public.screening_rooms (room_id, room_name, theater_id, capacity) FROM stdi
 --
 
 COPY public.screenings (screening_id, room_id, movie_id, "time", price, showing_date) FROM stdin;
-5	1	1	17:00	40	2022-12-31
-4	1	1	12:00	30	2022-12-31
-6	1	1	23:00	10	2022-12-32
+10	5	1	08:00	20	2023-01-01
 \.
 
 
 --
--- Data for Name: seats; Type: TABLE DATA; Schema: public; Owner: wangziyi
+-- Data for Name: seats; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.seats (seat_id, screening_id, seat_name, user_id) FROM stdin;
+1	10	#0	\N
+2	10	#1	\N
+4	10	#3	\N
+5	10	#4	\N
+6	10	#5	\N
+7	10	#6	\N
+8	10	#7	\N
+9	10	#8	\N
+10	10	#9	\N
+11	10	#10	\N
+12	10	#11	\N
+13	10	#12	\N
+14	10	#13	\N
+15	10	#14	\N
+16	10	#15	\N
+17	10	#16	\N
+18	10	#17	\N
+19	10	#18	\N
+20	10	#19	\N
+3	10	#2	1
 \.
 
 
@@ -451,10 +469,12 @@ COPY public.theaters (theater_id, theater_name, theater_address) FROM stdin;
 
 
 --
--- Data for Name: tickets; Type: TABLE DATA; Schema: public; Owner: wangziyi
+-- Data for Name: tickets; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded) FROM stdin;
+1	1	10	2	20	t
+2	1	10	3	20	f
 \.
 
 
@@ -462,7 +482,7 @@ COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded)
 -- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.auth_user_id_seq', 2, true);
+SELECT pg_catalog.setval('public.auth_user_id_seq', 8, true);
 
 
 --
@@ -483,21 +503,21 @@ SELECT pg_catalog.setval('public.movies_movie_id_seq', 1, true);
 -- Name: screening_rooms_room_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.screening_rooms_room_id_seq', 4, true);
+SELECT pg_catalog.setval('public.screening_rooms_room_id_seq', 5, true);
 
 
 --
 -- Name: screenings_screening_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.screenings_screening_id_seq', 6, true);
+SELECT pg_catalog.setval('public.screenings_screening_id_seq', 10, true);
 
 
 --
--- Name: seats_seat_id_seq; Type: SEQUENCE SET; Schema: public; Owner: wangziyi
+-- Name: seats_seat_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.seats_seat_id_seq', 1, false);
+SELECT pg_catalog.setval('public.seats_seat_id_seq', 20, true);
 
 
 --
@@ -508,10 +528,10 @@ SELECT pg_catalog.setval('public.theaters_theater_id_seq', 1, true);
 
 
 --
--- Name: tickets_ticket_id_seq; Type: SEQUENCE SET; Schema: public; Owner: wangziyi
+-- Name: tickets_ticket_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 1, false);
+SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 2, true);
 
 
 --
@@ -563,7 +583,7 @@ ALTER TABLE ONLY public.screenings
 
 
 --
--- Name: seats seats_pkey; Type: CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: seats seats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.seats
@@ -579,7 +599,7 @@ ALTER TABLE ONLY public.theaters
 
 
 --
--- Name: tickets tickets_pkey; Type: CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: tickets tickets_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets
@@ -627,7 +647,7 @@ ALTER TABLE ONLY public.screenings
 
 
 --
--- Name: seats seats_screening_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: seats seats_screening_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.seats
@@ -635,7 +655,7 @@ ALTER TABLE ONLY public.seats
 
 
 --
--- Name: seats seats_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: seats seats_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.seats
@@ -643,7 +663,7 @@ ALTER TABLE ONLY public.seats
 
 
 --
--- Name: tickets tickets_screening_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: tickets tickets_screening_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets
@@ -651,7 +671,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: tickets tickets_seat_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: tickets tickets_seat_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets
@@ -659,7 +679,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: tickets tickets_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: wangziyi
+-- Name: tickets tickets_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets
