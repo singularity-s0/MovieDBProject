@@ -235,3 +235,7 @@ std::nullopt_t form_modify_comment(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr,
     const std::string& screening_id);
+
+std::nullopt_t view_mycenter(std::shared_ptr<bserv::db_connection> conn,
+                             std::shared_ptr<bserv::session_type> session_ptr,
+                             bserv::response_type& response);

@@ -8,7 +8,7 @@ bserv::db_relation_to_object orm_ticket{
     bserv::make_db_field<int>("screening_id"),
     bserv::make_db_field<int>("time"),
     bserv::make_db_field<int>("price"),
-    bserv::make_db_field<int>("seat_num"),
+    bserv::make_db_field<int>("seat_name"),
 };
 
 std::nullopt_t buy_ticket_page(
