@@ -165,3 +165,50 @@ std::nullopt_t form_modify_screening(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr,
     const std::string& screening_id);
+
+
+
+
+boost::json::object room_register(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr);
+
+boost::json::object find_room(std::shared_ptr<bserv::db_connection> conn,
+                               std::shared_ptr<bserv::session_type> session_ptr,
+                               const std::string& room_name);
+
+std::optional<boost::json::object> get_room(
+    bserv::db_transaction& tx,
+    const boost::json::string& room_name);
+
+std::optional<boost::json::object> get_room_by_id(bserv::db_transaction& tx,
+                                                   const int room_id);
+
+std::nullopt_t view_rooms(std::shared_ptr<bserv::db_connection> conn,
+                           std::shared_ptr<bserv::session_type> session_ptr,
+                           bserv::response_type& response,
+                           const std::string& page_num);
+
+std::nullopt_t form_add_room(bserv::request_type& request,
+                              bserv::response_type& response,
+                              boost::json::object&& params,
+                              std::shared_ptr<bserv::db_connection> conn,
+                              std::shared_ptr<bserv::session_type> session_ptr);
+
+std::nullopt_t form_modify_room(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& room_id);
+
+std::nullopt_t redirect_to_rooms(
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    bserv::response_type& response,
+    int page_id,
+    boost::json::object&& context);
+    

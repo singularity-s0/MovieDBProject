@@ -151,7 +151,7 @@ CREATE TABLE public.screening_rooms (
     room_id integer NOT NULL,
     room_name character varying(255),
     theater_id integer NOT NULL,
-    capacity character varying(255)
+    capacity integer
 );
 
 
@@ -363,7 +363,7 @@ COPY public.comments (comment_id, id, movie_id, content) FROM stdin;
 --
 
 COPY public.movies (movie_id, moviename, starname, detail, running_time, type, avg_rating, poster, box_office, num_participants, release_date, box_office_unit, foreign_name, location) FROM stdin;
-1	Avatar	zxj	a new movie	20	sci-fi	0		0	0	0		avatar	shanghai
+1	Avatar	zxj	a new movie	120	sci-fi	0		0	0	0		avatar	shanghai
 \.
 
 
@@ -372,7 +372,9 @@ COPY public.movies (movie_id, moviename, starname, detail, running_time, type, a
 --
 
 COPY public.screening_rooms (room_id, room_name, theater_id, capacity) FROM stdin;
-1	Room 1	1	20
+3	IMAX	1	25
+4	THX	1	25
+1	Room 1	1	30
 \.
 
 
@@ -429,7 +431,7 @@ SELECT pg_catalog.setval('public.movies_movie_id_seq', 1, true);
 -- Name: screening_rooms_room_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.screening_rooms_room_id_seq', 2, true);
+SELECT pg_catalog.setval('public.screening_rooms_room_id_seq', 4, true);
 
 
 --

@@ -27,12 +27,6 @@ bserv::db_relation_to_object orm_comment{
     bserv::make_db_field<std::string>("content"),
 };
 
-bserv::db_relation_to_object orm_screening_room{
-    bserv::make_db_field<int>("room_id"),
-    bserv::make_db_field<std::string>("room_name"),
-    bserv::make_db_field<int>("theater_id"),
-    bserv::make_db_field<std::string>("capacity"),
-};
 
 std::string get_or_empty(boost::json::object& obj, const std::string& key) {
     return obj.count(key) ? obj[key].as_string().c_str() : "";
