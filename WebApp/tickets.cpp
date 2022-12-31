@@ -88,7 +88,7 @@ std::nullopt_t buy_ticket_page(
     // Get available seats
     if (context.count("screening_id")) {
         int screening_id = context["screening_id"].as_int64();
-        bserv::db_result db_res = tx.exec("select * from seats where seats.screening_id=?;", screening_id);
+        bserv::db_result db_res = tx.exec("select * from seats where seats.screening_id=? and seats.user_id is NULL;", screening_id);
         lginfo << db_res.query();
         for (auto& seat : orm_seats.convert_to_vector(db_res)) {
             auto seat_name = seat["seat_name"].as_string();
@@ -151,6 +151,8 @@ boost::json::object buy_ticket(
             seat_id,
             price);
         lginfo << r.query();
+        // Also set the user_id of seat to the ticket holder
+        r = tx.exec("update seats set user_id = ? where seat_id = ?;", user_id, seat_id);
         tx.commit();
     } catch (const std::exception& e) {
         return {{"success", false}, {"message", e.what()}};
@@ -190,6 +192,8 @@ boost::json::object refund_ticket(
     }
     // Set ticket to refunded
     r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);
+    // Also set the seat to free
+    r = tx.exec("update seats set user_id = NULL where seat_id = ?;", ticket["seat_id"].as_int64());
     lginfo << r.query();
     tx.commit();
     return {{"success", true}, {"message", "Ticket refunded"}};

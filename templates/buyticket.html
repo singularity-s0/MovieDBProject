@@ -29,6 +29,8 @@
             <input type="hidden" name="screening_id" value="{{ screening_id }}">
             {% endif %}
             <div class="mb-3">
+            <!--Seatmap image-->
+            <p style="text-align:center;"><img src="/statics/seatmap.jpg" width="40%" alt="Seat Map"></p>
             <label for="seat" class="form-label">Seats</label>
             <select class="form-select" id="seat" name="seat" data-param="seat">
                 {% for seat in seats %}
