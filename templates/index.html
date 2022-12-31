@@ -7,15 +7,13 @@
 {% block content %}
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
-    <h1 class="display-5 fw-bold">Announcement</h1>
-    <p class="col-md-8 fs-4">Welcome!</p>
+    <h1 class="display-5 fw-bold">{{ announcement_title }}</h1>
+    <p class="col-md-8 fs-4">{{ announcement_content }}</p>
     {% if existsIn(permission, "modify_announcement") %}
-    <button class="btn btn-primary btn-lg" type="button">Edit</button>
+    <button class="btn btn-primary btn-lg" type="button" data-bs-toggle="modal" data-bs-target="#announcementModify">Edit</button>
     {% endif %}
   </div>
 </div>
-
-
 
 <form action="/">
   <div class="input-group">
@@ -28,7 +26,7 @@
     {% endif %}
   </div>
 </form>
-<table class="table">
+<table class="table" id="mt">
   <thead>
     <tr>
       <th scope="col">ID</th>
@@ -80,6 +78,18 @@
     {% endfor %}
   </tbody>
 </table>
+
+<script>
+  $(document).ready(function () {
+    $('#mt').DataTable({
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": false,
+      "order": [[ 0, "asc" ]]
+    });
+    $('.dataTables_length').addClass('bs-select');
+  });
+</script>
 
 {% if exists("pagination") %}
 <ul class="pagination">
@@ -235,6 +245,33 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="announcementModify" tabindex="-1" aria-labelledby="mannouncementModifyLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/announcement_update">
+        <div class="modal-header">
+          <h5 class="modal-title" id="announcementModifyLabel">Update Announcement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" name="title" placeholder="{{announcement_title}}">
+          </div>
+          <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <input type="text" class="form-control" name="content" placeholder="{{announcement_content}}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update</button>
         </div>
       </form>
     </div>

@@ -21,6 +21,12 @@ bserv::db_relation_to_object orm_movie{
     bserv::make_db_field<std::string>("location"),
 };
 
+bserv::db_relation_to_object orm_announcement{
+    bserv::make_db_field<int>("id"),
+    bserv::make_db_field<std::string>("title"),
+    bserv::make_db_field<std::string>("content"),
+};
+
 std::optional<boost::json::object> get_movie(
     bserv::db_transaction& tx,
     const boost::json::string& moviename) {
@@ -223,6 +229,17 @@ std::nullopt_t redirect_to_movies(
     }
     context["search_kw"] = search_kw;
     context["movies"] = json_movies;
+
+    // Announcements
+    db_res = tx.exec("select * from announcements order by id desc limit 1");
+    lginfo << db_res.query();
+    auto announcements = orm_announcement.convert_to_vector(db_res);
+    auto first_announcement = announcements.begin();
+    auto title = (*first_announcement)["title"];
+    auto content = (*first_announcement)["content"];
+    context["announcement_title"] = title;
+    context["announcement_content"] = content;
+
     context["permission"] = get_permission_for_session(*session_ptr);
     return index("index.html", session_ptr, response, context);
 }
@@ -260,6 +277,45 @@ std::nullopt_t form_modify_movie(
     int mov_id = std::stoi(movie_id);
     boost::json::object context =
         movie_modify(request, std::move(params), conn, session_ptr, mov_id);
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
+                              std::move(context));
+}
+
+boost::json::object announcement_add(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
+    if (request.method() != boost::beast::http::verb::post) {
+        throw bserv::url_not_found_exception{};
+    }
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "modify_announcement")) !=
+        std::nullopt) {
+        return p.value();
+    }
+    bserv::db_transaction tx{conn};
+    try {
+        bserv::db_result r = tx.exec(
+            "insert into announcements (title, content) values (?, ?);",
+            get_or_empty(params, "title"),
+            get_or_empty(params, "content"));
+        lginfo << r.query();
+        tx.commit();
+    } catch (const std::exception& e) {
+        return {{"success", false}, {"message", e.what()}};
+    }
+    return {{"success", true}, {"message", "Announcement updated"}};
+}
+
+std::nullopt_t form_modify_announcement(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
+    boost::json::object context =
+        announcement_add(request, std::move(params), conn, session_ptr);
     return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
 }

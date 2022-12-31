@@ -123,6 +123,13 @@ std::nullopt_t form_add_movie(bserv::request_type& request,
                               std::shared_ptr<bserv::db_connection> conn,
                               std::shared_ptr<bserv::session_type> session_ptr);
 
+std::nullopt_t form_modify_announcement(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr);
+
 std::nullopt_t form_modify_movie(
     bserv::request_type& request,
     bserv::response_type& response,
