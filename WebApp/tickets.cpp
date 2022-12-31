@@ -3,6 +3,7 @@
 #include "rendering.h"
 
 extern bserv::db_relation_to_object orm_screening;
+extern bserv::db_relation_to_object orm_screening_room;
 
 bserv::db_relation_to_object orm_ticket{
     bserv::make_db_field<int>("ticket_id"),
@@ -47,12 +48,23 @@ std::nullopt_t buy_ticket_page(
 
     auto selected_date = get_or_empty(params, "date");
     auto selected_time = get_or_empty(params, "time");
-    auto selected_room = get_or_empty(params, "room");
     auto selected_seat = get_or_empty(params, "seat");
+    auto room_id = get_stoi_or_zero(params, "roomid");
 
     bserv::db_transaction tx{conn};
+    // Get screening rooms
+    bserv::db_result db_res = tx.exec("select * from screening_rooms;");
+    lginfo << db_res.query();
+    auto screening_rooms = orm_screening_room.convert_to_vector(db_res);
+    boost::json::array json_screening_rooms;
+    json_screening_rooms.push_back(boost::json::object{{"room_id", -1}, {"room_name", ""}});
+    for (auto& screening_room : screening_rooms) {
+        json_screening_rooms.push_back(screening_room);
+    }
+    context["screening_rooms"] = json_screening_rooms;
+
     // Get available screening times
-    bserv::db_result db_res = tx.exec("select * from screenings where screenings.movie_id=?;", movie_id);
+    db_res = tx.exec("select * from screenings where screenings.movie_id=? and screenings.room_id=?;", movie_id, room_id);
     lginfo << db_res.query();
     auto screenings = orm_screening.convert_to_vector(db_res);
     boost::json::array screening_dates, screening_times;
@@ -82,6 +94,7 @@ std::nullopt_t buy_ticket_page(
     context["dates"] = screening_dates;
     context["allow_submit"] = false;
     context["selected_seat"] = selected_seat;
+    context["selected_roomid"] = room_id;
 
     boost::json::array seats;
     seats.push_back("");

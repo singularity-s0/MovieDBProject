@@ -10,6 +10,14 @@
 
         <form method="post" action="/form_buy_ticket">
             <div class="mb-3">
+                <label for="roomid" class="form-label">Theater</label>
+                <select class="form-select" id="roomid" name="roomid" data-param="roomid">
+                    {% for room in screening_rooms %}
+                    <option value={{ room.room_id }} {% if room.room_id == selected_roomid %}selected{% endif %}>{{ room.room_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="date" class="form-label">Date</label>
                 <select class="form-select" id="date" name="date" data-param="date">
                     {% for date in dates %}
