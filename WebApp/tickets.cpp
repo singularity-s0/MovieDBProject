@@ -150,9 +150,10 @@ boost::json::object buy_ticket(
             screening_id,
             seat_id,
             price);
-        lginfo << r.query();
         // Also set the user_id of seat to the ticket holder
         r = tx.exec("update seats set user_id = ? where seat_id = ?;", user_id, seat_id);
+        // Also update box office
+        r = tx.exec("update movies set box_office = box_office + ?, num_participants = num_participants + 1 where movie_id = ?;", price, screenings[0]["movie_id"].as_int64());
         tx.commit();
     } catch (const std::exception& e) {
         return {{"success", false}, {"message", e.what()}};
@@ -194,7 +195,8 @@ boost::json::object refund_ticket(
     r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);
     // Also set the seat to free
     r = tx.exec("update seats set user_id = NULL where seat_id = ?;", ticket["seat_id"].as_int64());
-    lginfo << r.query();
+    // Also update box office
+    r = tx.exec("update movies set box_office = box_office - ?, num_participants = num_participants - 1 where movie_id = ?;", ticket["price"].as_int64(), ticket["movie_id"].as_int64());
     tx.commit();
     return {{"success", true}, {"message", "Ticket refunded"}};
 }
