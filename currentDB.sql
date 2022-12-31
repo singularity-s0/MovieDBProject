@@ -21,6 +21,17 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: announcements; Type: TABLE; Schema: public; Owner: wangziyi
+--
+
+CREATE TABLE public.announcements (
+    announcement character varying(255)
+);
+
+
+ALTER TABLE public.announcements OWNER TO wangziyi;
+
+--
 -- Name: auth_user; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -381,6 +392,14 @@ ALTER TABLE ONLY public.theaters ALTER COLUMN theater_id SET DEFAULT nextval('pu
 --
 
 ALTER TABLE ONLY public.tickets ALTER COLUMN ticket_id SET DEFAULT nextval('public.tickets_ticket_id_seq'::regclass);
+
+
+--
+-- Data for Name: announcements; Type: TABLE DATA; Schema: public; Owner: wangziyi
+--
+
+COPY public.announcements (announcement) FROM stdin;
+\.
 
 
 --
