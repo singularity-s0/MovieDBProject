@@ -16,6 +16,7 @@
         <th scope="col">Seat</th>
         <th scope="col">Room</th>
         <th scope="col">Price</th>
+        <th scope="col">Refunded</th>
         <th scope="col">Action</th>
         </tr>
     </thead>
@@ -27,6 +28,7 @@
         <td>{{ ticket.seat_id }}</td>
         <td>{{ ticket.room_id }}</td>
         <td>{{ ticket.price }}</td>
+        <td>{{ ticket.refunded }}</td>
         <td>
           <a href="/viewticket/{{ ticket.ticket_id }}">View</a>
           <a href="" data-bs-toggle="modal" data-bs-target="#cancelModal{{ ticket.ticket_id }}">Cancel</a>
@@ -41,13 +43,13 @@
 <div class="modal fade" id="cancelModal{{ ticket.ticket_id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ ticket.ticket_id }}" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="post" action="/form_cancel_ticket/{{ ticket.ticket_id }}">
+      <form method="post" action="/form_refund_ticket/{{ ticket.ticket_id }}">
         <div class="modal-header">
           <h5 class="modal-title" id="cancelModalLabel{{ ticket.ticket_id }}">Cancel Ticket</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Are you sure to cancel this ticket?</p>
+          <p>Are you sure you want to refund this ticket?</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
