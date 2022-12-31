@@ -17,6 +17,7 @@ std::optional<boost::json::object> check_session_permission(boost::json::object 
 std::string get_or_empty(boost::json::object& obj, const std::string& key);
 
 int get_stoi_or_zero(boost::json::object& obj, const std::string& key);
+double get_stod_or_zero(boost::json::object& obj, const std::string& key);
 
 std::nullopt_t index(const std::string& template_path,
                      std::shared_ptr<bserv::session_type> session_ptr,
@@ -276,3 +277,13 @@ std::nullopt_t form_refund_ticket(
 std::nullopt_t view_comments(std::shared_ptr<bserv::db_connection> conn,
                            std::shared_ptr<bserv::session_type> session_ptr,
                            bserv::response_type& response, const std::string& movie_id);
+
+std::nullopt_t form_add_funds(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr);
+
+void reload_user_info(std::shared_ptr<bserv::db_connection> conn,
+                      std::shared_ptr<bserv::session_type> session_ptr);

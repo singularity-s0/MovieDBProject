@@ -93,6 +93,7 @@
       <th scope="col">Username</th>
       <th scope="col">Email</th>
       <th scope="col">Role</th>
+      <th scope="col">Balance</th>
       <th scope="col">Action</th>
     </tr>
   </thead>
@@ -103,6 +104,7 @@
       <td>{{ user.username }}</td>
       <td>{{ user.email }}</td>
       <td>{{ user.roal }}</td>
+      <td>¥{{ user.balance }}</td>
       {% if existsIn(permission, "modify_user") %}
       <td><a href="" data-bs-toggle="modal" data-bs-target="#userModifyModal{{user.id}}">Modify</a></td>
       {% endif %}

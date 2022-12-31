@@ -2,8 +2,6 @@
 #include "handlers.h"
 #include "rendering.h"
 
-#include <iostream>
-
 extern bserv::db_relation_to_object orm_screening;
 
 bserv::db_relation_to_object orm_ticket{
@@ -144,9 +142,17 @@ boost::json::object buy_ticket(
         return {{"success", false}, {"message", "Invalid screening id"}};
     }
     auto price = screenings[0]["price"].as_int64();
-
     try {
-        bserv::db_result r = tx.exec(
+        bserv::db_result r;
+        try {
+            r = tx.exec(
+                "update auth_user set balance = balance - ? where id = ?;",
+                price,
+                user_id);
+        } catch (const std::exception& e) {
+            return {{"success", false}, {"message", "Insufficient funds"}};
+        }
+        r = tx.exec(
             "insert into tickets (user_id, screening_id, seat_id, price, refunded) values (?, ?, ?, ?, false);",
             user_id,
             screening_id,
@@ -160,6 +166,7 @@ boost::json::object buy_ticket(
     } catch (const std::exception& e) {
         return {{"success", false}, {"message", e.what()}};
     }
+    reload_user_info(conn, session_ptr);
     return {{"success", true}, {"message", "Ticket bought"}};
 }
 
@@ -193,13 +200,21 @@ boost::json::object refund_ticket(
     } else if (ticket["refunded"].as_bool()) {
         return {{"success", false}, {"message", "This ticket has already been refunded"}};
     }
+    r = tx.exec("update auth_user set balance = balance + ? where id = ?;", ticket["price"].as_int64(), user_id);
     // Set ticket to refunded
     r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);
     // Also set the seat to free
     r = tx.exec("update seats set user_id = NULL where seat_id = ?;", ticket["seat_id"].as_int64());
     // Also update box office
-    r = tx.exec("update movies set box_office = box_office - ?, num_participants = num_participants - 1 where movie_id = ?;", ticket["price"].as_int64(), ticket["movie_id"].as_int64());
+    r = tx.exec("select * from screenings where screening_id = ?;", ticket["screening_id"].as_int64());
+    auto screenings = orm_screening.convert_to_vector(r);
+    if (screenings.size() != 1) {
+        return {{"success", false}, {"message", "Invalid screening id"}};
+    }
+    auto movie_id = screenings[0]["movie_id"].as_int64();
+    r = tx.exec("update movies set box_office = box_office - ?, num_participants = num_participants - 1 where movie_id = ?;", ticket["price"].as_int64(), movie_id);
     tx.commit();
+    reload_user_info(conn, session_ptr);
     return {{"success", true}, {"message", "Ticket refunded"}};
 }
 

@@ -12,7 +12,7 @@ bserv::db_relation_to_object orm_user{
     bserv::make_db_field<std::string>("email"),
     bserv::make_db_field<bool>("is_active"),
     bserv::make_db_field<std::string>("roal"),
-};
+    bserv::make_db_field<double>("balance")};
 
 std::optional<boost::json::object> get_user(
     bserv::db_transaction& tx,
@@ -169,6 +169,23 @@ boost::json::object find_user(std::shared_ptr<bserv::db_connection> conn,
     return {{"success", true}, {"user", user.value()}};
 }
 
+void reload_user_info(std::shared_ptr<bserv::db_connection> conn,
+                      std::shared_ptr<bserv::session_type> session_ptr) {
+    bserv::session_type& session = *session_ptr;
+    if (session.count("user") == 0) {
+        return;
+    }
+    auto& user = session["user"].as_object();
+    auto uid = user["id"].as_int64();
+    bserv::db_transaction tx{conn};
+    auto opt_user = get_user_by_id(tx, uid);
+    if (!opt_user.has_value()) {
+        return;
+    }
+    user = opt_user.value();
+    session["user"] = user;
+}
+
 boost::json::object user_logout(
     std::shared_ptr<bserv::session_type> session_ptr) {
     bserv::session_type& session = *session_ptr;
@@ -316,4 +333,46 @@ std::nullopt_t form_modify_user(
         user_modify(request, std::move(params), conn, session_ptr, usr_id);
     return redirect_to_users(conn, session_ptr, response, 1,
                              std::move(context));
+}
+
+boost::json::object add_funds(
+    bserv::request_type& request,
+    // the json object is obtained from the request
+    // body, as well as the url parameters
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
+    if (request.method() != boost::beast::http::verb::post) {
+        throw bserv::url_not_found_exception{};
+    }
+
+    auto session = *session_ptr;
+    if (!session.count("user")) {
+        throw std::runtime_error("Not logged in");
+    }
+    boost::json::object user = session["user"].as_object();
+    int uid = user["id"].as_int64();
+
+    bserv::db_transaction tx{conn};
+    bserv::db_result r = tx.exec(
+        "update ? "
+        "set balance = balance + ? "
+        "where id = ?",
+        bserv::db_name("auth_user"), get_stod_or_zero(params, "value"), uid);
+    lginfo << r.query();
+    tx.commit();  // you must manually commit changes
+    return {{"success", true}, {"message", "Funds added"}};
+}
+
+std::nullopt_t form_add_funds(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
+    boost::json::object context =
+        add_funds(request, std::move(params), conn, session_ptr);
+    reload_user_info(conn, session_ptr);
+    return redirect_to_mycenter(conn, session_ptr, response,
+                                std::move(context));
 }

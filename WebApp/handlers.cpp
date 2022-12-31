@@ -38,6 +38,11 @@ int get_stoi_or_zero(boost::json::object& obj, const std::string& key) {
 	return str.empty() ? 0 : std::stoi(str);
 }
 
+double get_stod_or_zero(boost::json::object& obj, const std::string& key) {
+    auto str = get_or_empty(obj, key);
+	return str.empty() ? 0 : std::stod(str);
+}
+
 boost::json::object send_request(std::shared_ptr<bserv::session_type> session,
                                  std::shared_ptr<bserv::http_client> client_ptr,
                                  boost::json::object&& params) {
