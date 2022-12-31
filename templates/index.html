@@ -69,7 +69,10 @@
         {% endif %}
 
         {% if existsIn(permission, "review_movie") %}
-        <a href="/form_review/{{movie.movie_id}}">Review</a>
+        <form method="post" action="/form_review" id="review_form{{movie.movie_id}}">
+          <input type="hidden" name="movie_id" value="{{ movie.movie_id }}" />
+          <a href="javascript:{}" onclick="document.getElementById('review_form{{movie.movie_id}}').submit(); return false;">Review</a>
+        </form>
         {% endif %}
 
         {% if exists("user") %}

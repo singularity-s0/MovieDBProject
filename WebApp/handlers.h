@@ -278,21 +278,18 @@ std::nullopt_t view_comments(std::shared_ptr<bserv::db_connection> conn,
                            std::shared_ptr<bserv::session_type> session_ptr,
                            bserv::response_type& response, const std::string& movie_id);
 
-<<<<<<< HEAD
-std::nullopt_t review(
-=======
 std::nullopt_t form_add_funds(
->>>>>>> 499f6087ae99ced7130cd5663a023e9eb5f2ff7d
     bserv::request_type& request,
     bserv::response_type& response,
     boost::json::object&& params,
     std::shared_ptr<bserv::db_connection> conn,
-<<<<<<< HEAD
-    std::shared_ptr<bserv::session_type> session_ptr,
-    const std::string& movie_id);
-=======
     std::shared_ptr<bserv::session_type> session_ptr);
 
 void reload_user_info(std::shared_ptr<bserv::db_connection> conn,
                       std::shared_ptr<bserv::session_type> session_ptr);
->>>>>>> 499f6087ae99ced7130cd5663a023e9eb5f2ff7d
+
+std::nullopt_t form_review(bserv::request_type& request,
+                           bserv::response_type& response,
+                           boost::json::object&& params,
+                           std::shared_ptr<bserv::db_connection> conn,
+                           std::shared_ptr<bserv::session_type> session_ptr);

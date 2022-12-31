@@ -93,13 +93,14 @@ boost::json::object movie_register(
     return {{"success", true}, {"message", "Movie registered"}};
 }
 
-boost::json::object movie_modify(bserv::request_type& request,
-                                 // the json object is obtained from the request
-                                 // body, as well as the url parameters
-                                 boost::json::object&& params,
-                                 std::shared_ptr<bserv::db_connection> conn,
-                                 std::shared_ptr<bserv::session_type> session_ptr,
-                                 int movie_id) {
+boost::json::object movie_modify(
+    bserv::request_type& request,
+    // the json object is obtained from the request
+    // body, as well as the url parameters
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    int movie_id) {
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
@@ -176,8 +177,10 @@ std::nullopt_t redirect_to_movies(
     search_query.append("%");
 
     bserv::db_transaction tx{conn};
-    bserv::db_result db_res = tx.exec("select count(*) from movies where "
-                                      "moviename like ?", search_query);
+    bserv::db_result db_res = tx.exec(
+        "select count(*) from movies where "
+        "moviename like ?",
+        search_query);
     lginfo << db_res.query();
     std::size_t total_movies = (*db_res.begin())[0].as<std::size_t>();
     lgdebug << "total movies: " << total_movies << std::endl;
@@ -187,15 +190,17 @@ std::nullopt_t redirect_to_movies(
     lgdebug << "total pages: " << total_pages << std::endl;
     std::optional<boost::json::object> p;
     if ((p = check_session_permission(*session_ptr, "view_unreviewed")) !=
-        std::nullopt){
-            db_res =
-            tx.exec("select * from movies where reviewed = true and moviename like ? limit 10 offset ?;", search_query, (page_id - 1) * 10);
-        }
-    else{
-        db_res =
-        tx.exec("select * from movies where moviename like ? limit 10 offset ?;", search_query, (page_id - 1) * 10);
+        std::nullopt) {
+        db_res = tx.exec(
+            "select * from movies where reviewed = true and moviename like ? "
+            "limit 10 offset ?;",
+            search_query, (page_id - 1) * 10);
+    } else {
+        db_res = tx.exec(
+            "select * from movies where moviename like ? limit 10 offset ?;",
+            search_query, (page_id - 1) * 10);
     }
-    
+
     lginfo << db_res.query();
     auto movies = orm_movie.convert_to_vector(db_res);
     boost::json::array json_movies;
@@ -260,8 +265,8 @@ std::nullopt_t view_movies(std::shared_ptr<bserv::db_connection> conn,
                            const std::string& page_num) {
     int page_id = std::stoi(page_num);
     boost::json::object context;
-    return redirect_to_movies(conn, std::move(params), session_ptr, response, page_id,
-                              std::move(context));
+    return redirect_to_movies(conn, std::move(params), session_ptr, response,
+                              page_id, std::move(context));
 }
 
 std::nullopt_t form_add_movie(
@@ -307,8 +312,7 @@ boost::json::object announcement_add(
     try {
         bserv::db_result r = tx.exec(
             "insert into announcements (title, content) values (?, ?);",
-            get_or_empty(params, "title"),
-            get_or_empty(params, "content"));
+            get_or_empty(params, "title"), get_or_empty(params, "content"));
         lginfo << r.query();
         tx.commit();
     } catch (const std::exception& e) {
@@ -327,14 +331,13 @@ std::nullopt_t form_modify_announcement(
         announcement_add(request, std::move(params), conn, session_ptr);
     return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
-    }
+}
 
 boost::json::object review(bserv::request_type& request,
                            bserv::response_type& response,
                            boost::json::object&& params,
                            std::shared_ptr<bserv::db_connection> conn,
-                           std::shared_ptr<bserv::session_type> session_ptr,
-                           int movie_id) {
+                           std::shared_ptr<bserv::session_type> session_ptr) {
     if (request.method() != boost::beast::http::verb::post) {
         throw bserv::url_not_found_exception{};
     }
@@ -343,6 +346,11 @@ boost::json::object review(bserv::request_type& request,
     if ((p = check_session_permission(*session_ptr, "review_movie")) !=
         std::nullopt) {
         return p.value();
+    }
+
+    int movie_id = get_stoi_or_zero(params, "movie_id");
+    if (movie_id == 0) {
+        return {{"success", false}, {"message", "Invalid movie id"}};
     }
 
     bserv::db_transaction tx{conn};
@@ -359,4 +367,15 @@ boost::json::object review(bserv::request_type& request,
     lginfo << r.query();
     tx.commit();  // you must manually commit changes
     return {{"success", true}, {"message", "Movie reviewed"}};
+}
+
+std::nullopt_t form_review(bserv::request_type& request,
+                           bserv::response_type& response,
+                           boost::json::object&& params,
+                           std::shared_ptr<bserv::db_connection> conn,
+                           std::shared_ptr<bserv::session_type> session_ptr) {
+    boost::json::object context =
+        review(request, response, std::move(params), conn, session_ptr);
+    return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
+                              std::move(context));
 }
