@@ -9,7 +9,7 @@ bserv::db_relation_to_object orm_movie{
     bserv::make_db_field<std::string>("detail"),
     bserv::make_db_field<int>("running_time"),
     bserv::make_db_field<std::string>("type"),
-    bserv::make_db_field<int>("avg_rating"),
+    bserv::make_db_field<double>("avg_rating"),
     bserv::make_db_field<std::string>("poster"),
     bserv::make_db_field<int>("box_office"),
     bserv::make_db_field<int>("num_participants"),

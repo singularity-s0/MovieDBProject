@@ -214,7 +214,7 @@ std::nullopt_t redirect_to_rooms(
     int page_id,
     boost::json::object&& context);
 
-std::nullopt_t manage_comments(
+std::nullopt_t redirect_to_comments(
     bserv::request_type& request,
     bserv::response_type& response,
     boost::json::object&& params,
@@ -262,3 +262,7 @@ std::nullopt_t form_refund_ticket(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr,
     const std::string& ticket_id);
+
+std::nullopt_t view_comments(std::shared_ptr<bserv::db_connection> conn,
+                           std::shared_ptr<bserv::session_type> session_ptr,
+                           bserv::response_type& response, const std::string& movie_id);
