@@ -261,9 +261,9 @@ CREATE TABLE public.tickets (
     ticket_id integer NOT NULL,
     id integer NOT NULL,
     screening_id integer NOT NULL,
-    "time" integer,
-    price integer,
-    seat_num integer
+    "time" character varying(255),
+    price character varying(255),
+    seat_num character varying(255)
 );
 
 
@@ -373,9 +373,9 @@ COPY public.movies (movie_id, moviename, starname, detail, running_time, type, a
 --
 
 COPY public.screening_rooms (room_id, room_name, theater_id, capacity) FROM stdin;
-4	THX	1	25
 1	Room 1	1	30
 3	IMAX	1	20
+4	THX	1	20
 \.
 
 
