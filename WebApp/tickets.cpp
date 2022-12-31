@@ -1,24 +1,10 @@
 #include <vector>
 #include "handlers.h"
 #include "rendering.h"
+
 #include <iostream>
-#include <ctime>
-#include <string.h>
 
 extern bserv::db_relation_to_object orm_screening;
-time_t unixTime = std::time(nullptr);
-auto tickettime(std::string date, std::string time)
-{
-    struct tm t;
-    t.tm_year = stoi(date.substr(0,4));
-    t.tm_mon = stoi(date.substr(5,2));
-    t.tm_mday = stoi(date.substr(8,2));
-    t.tm_hour = stoi(time.substr(0,2));
-    t.tm_min = stoi(time.substr(3,2));
-    t.tm_sec = 0;
-    auto ret = std::mktime(t);
-    return std::remove(ret);
-}
 
 bserv::db_relation_to_object orm_ticket{
     bserv::make_db_field<int>("ticket_id"),
@@ -207,27 +193,14 @@ boost::json::object refund_ticket(
     } else if (ticket["refunded"].as_bool()) {
         return {{"success", false}, {"message", "This ticket has already been refunded"}};
     }
-    
-    bserv::db_result rr = tx.exec(
-        "select * from screenings, tickets where screenings.screening_id = tickets.screening_id and ticket_id = ?;", ticket_id);
-    lginfo << rr.query();
-    auto t = orm_screening.convert_to_vector(rr);
-    auto time = t[0]["time"].as_string();
-    auto date = t[0]["showing_date"].as_string();
-    if(tickettime(date, time) < unixTime)
-    {
-        return {{"success", false}, {"message", "The movie has already started. This ticket can't be refunded"}};
-    }
-    else{
-        // Set ticket to refunded
-        r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);
-        // Also set the seat to free
-        r = tx.exec("update seats set user_id = NULL where seat_id = ?;", ticket["seat_id"].as_int64());
-        // Also update box office
-        r = tx.exec("update movies set box_office = box_office - ?, num_participants = num_participants - 1 where movie_id = ?;", ticket["price"].as_int64(), ticket["movie_id"].as_int64());
-        tx.commit();
-        return {{"success", true}, {"message", "Ticket refunded"}};
-    }
+    // Set ticket to refunded
+    r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);
+    // Also set the seat to free
+    r = tx.exec("update seats set user_id = NULL where seat_id = ?;", ticket["seat_id"].as_int64());
+    // Also update box office
+    r = tx.exec("update movies set box_office = box_office - ?, num_participants = num_participants - 1 where movie_id = ?;", ticket["price"].as_int64(), ticket["movie_id"].as_int64());
+    tx.commit();
+    return {{"success", true}, {"message", "Ticket refunded"}};
 }
 
 std::nullopt_t form_buy_ticket(
@@ -253,7 +226,4 @@ std::nullopt_t form_refund_ticket(
         refund_ticket(request, std::move(params), conn, session_ptr, ticket_id);
     return redirect_to_mycenter(conn, session_ptr, response,
                               std::move(context));
-
-
-
 }
