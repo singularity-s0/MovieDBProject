@@ -435,6 +435,8 @@ ALTER TABLE ONLY public.tickets ALTER COLUMN ticket_id SET DEFAULT nextval('publ
 COPY public.announcements (id, title, content) FROM stdin;
 1	a	b
 2	Watch the new hits!	Check out Wandering Earth featuring Wu Jing
+3		
+4	Check out the new hits!	Watch Wandering Earth featuring Wu Jing
 \.
 
 
@@ -443,9 +445,10 @@ COPY public.announcements (id, title, content) FROM stdin;
 --
 
 COPY public.auth_user (id, username, password, is_superuser, first_name, last_name, email, is_active, roal, balance) FROM stdin;
-1	admin	9yod80hbsscwIp7v$ncDRV6rkxLm9CfZE0+8+Pi5ZrsaV42powxsuQJ07qvo=	f			admin@zxj.com	t	admin	0.00
 2	zxj	r0LX03ExdhaFgy55$NBt4x38HXuDC3KmUiFpx0d1yb+613foVNRutzg/KmZI=	f			zxj@zxj.com	t	user	0.00
 9	wzy	bDuRW5trSbQoPYnp$vNMMZ2qYJNFG3DI3odfJOMQLkmOmNSSYer7sJNz30k8=	f			wzy@wzy.com	t	user	0.00
+1	admin	9yod80hbsscwIp7v$ncDRV6rkxLm9CfZE0+8+Pi5ZrsaV42powxsuQJ07qvo=	f			admin@zxj.com	t	admin	30.000000
+10	manager	aq422K9RvG6bRKv5$Z8izRM+0bLOJozv22zhzOhhofRyppYDjKV8hjo3VTwc=	f				t	manager	0.00
 \.
 
 
@@ -465,8 +468,8 @@ COPY public.comments (comment_id, id, movie_id, rating, content) FROM stdin;
 --
 
 COPY public.movies (movie_id, moviename, starname, detail, running_time, type, avg_rating, poster, box_office, num_participants, release_date, box_office_unit, foreign_name, location, reviewed) FROM stdin;
-1	Avatar	James Cameron	The Ways of Water	120	Sci-fi	2.5000000000000000		60	3	2022		A	Shanghai	f
-2	Wandering Earth	Wu Jing	A Chinese Sci-fi Movie	130	Sci-fi	4.0000000000000000		20	1	2021		WE	Shanghai	f
+1	Avatar	James Cameron	The Ways of Water	120	Sci-fi	2.5000000000000000		80	4	2022		A	Shanghai	t
+2	Wandering Earth	Wu Jing	A Chinese Sci-fi Movie	130	Sci-fi	4.0000000000000000		70	2	2021		WE	Shanghai	t
 \.
 
 
@@ -507,7 +510,6 @@ COPY public.seats (seat_id, screening_id, seat_name, user_id) FROM stdin;
 1	10	#0	\N
 2	10	#1	\N
 4	10	#3	\N
-7	10	#6	\N
 8	10	#7	\N
 9	10	#8	\N
 10	10	#9	\N
@@ -544,9 +546,7 @@ COPY public.seats (seat_id, screening_id, seat_name, user_id) FROM stdin;
 39	11	#19	\N
 40	11	#20	\N
 41	12	#1	\N
-42	12	#2	\N
 43	12	#3	\N
-44	12	#4	\N
 45	12	#5	\N
 46	12	#6	\N
 47	12	#7	\N
@@ -685,6 +685,9 @@ COPY public.seats (seat_id, screening_id, seat_name, user_id) FROM stdin;
 179	18	#19	\N
 180	18	#20	\N
 181	19	#1	\N
+44	12	#4	1
+7	10	#6	1
+42	12	#2	\N
 182	19	#2	\N
 183	19	#3	\N
 184	19	#4	\N
@@ -746,6 +749,9 @@ COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded)
 3	2	10	6	20	f
 4	2	10	5	20	f
 5	1	11	23	20	f
+6	1	12	44	50	f
+7	1	12	42	50	t
+8	1	10	7	20	f
 \.
 
 
@@ -753,14 +759,14 @@ COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded)
 -- Name: announcements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.announcements_id_seq', 2, true);
+SELECT pg_catalog.setval('public.announcements_id_seq', 4, true);
 
 
 --
 -- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.auth_user_id_seq', 9, true);
+SELECT pg_catalog.setval('public.auth_user_id_seq', 10, true);
 
 
 --
@@ -809,7 +815,7 @@ SELECT pg_catalog.setval('public.theaters_theater_id_seq', 1, true);
 -- Name: tickets_ticket_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 5, true);
+SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 8, true);
 
 
 --
