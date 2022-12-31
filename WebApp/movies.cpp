@@ -221,6 +221,7 @@ std::nullopt_t redirect_to_movies(
         pagination["pages_right"] = pages_right;
         context["pagination"] = pagination;
     }
+    context["search_kw"] = search_kw;
     context["movies"] = json_movies;
     context["permission"] = get_permission_for_session(*session_ptr);
     return index("index.html", session_ptr, response, context);
