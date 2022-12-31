@@ -6,8 +6,24 @@
 
 {% block content %}
 <!-- Button trigger modal -->
-<p class="col-md-8 fs-4">My Tickets</p>
+<div class="row align-items-md-stretch">
+  <div class="col-md-6">
+    <div class="h-100 p-5 text-white bg-dark rounded-3">
+      <h2>Tickets</h2>
+      <p>View and manage your movie tickets</p>
+      <button class="btn btn-outline-light" type="button" onClick="window.location.reload();">Refresh</button>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="h-100 p-5 bg-light border rounded-3">
+      <h2>Balance</h2>
+      <p>Remaining balance: ¥{{ user.balance }}</p>
+      <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#addBalance">Add funds</button>
+    </div>
+  </div>
+</div>
 
+<p class="col-md-8 fs-4"> </p>
 <table class="table" id="tickets_tb">
     <thead>
         <tr>
@@ -97,5 +113,28 @@
   </div>
 </div>
 {% endfor %}
+
+<div class="modal fade" id="addBalance" tabindex="-1" aria-labelledby="addBalanceL" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/add_balance">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addBalanceL">Add funds</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="value" class="form-label">Value</label>
+            <input type="text" class="form-control" name="value" placeholder="10.00">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
