@@ -21,15 +21,39 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: announcements; Type: TABLE; Schema: public; Owner: wangziyi
+-- Name: announcements; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.announcements (
-    announcement character varying(255)
+    id integer NOT NULL,
+    title character varying(255),
+    content character varying(255)
 );
 
 
-ALTER TABLE public.announcements OWNER TO wangziyi;
+ALTER TABLE public.announcements OWNER TO postgres;
+
+--
+-- Name: announcements_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.announcements_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.announcements_id_seq OWNER TO postgres;
+
+--
+-- Name: announcements_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.announcements_id_seq OWNED BY public.announcements.id;
+
 
 --
 -- Name: auth_user; Type: TABLE; Schema: public; Owner: postgres
@@ -339,6 +363,13 @@ ALTER SEQUENCE public.tickets_ticket_id_seq OWNED BY public.tickets.ticket_id;
 
 
 --
+-- Name: announcements id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.announcements ALTER COLUMN id SET DEFAULT nextval('public.announcements_id_seq'::regclass);
+
+
+--
 -- Name: auth_user id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -395,10 +426,12 @@ ALTER TABLE ONLY public.tickets ALTER COLUMN ticket_id SET DEFAULT nextval('publ
 
 
 --
--- Data for Name: announcements; Type: TABLE DATA; Schema: public; Owner: wangziyi
+-- Data for Name: announcements; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.announcements (announcement) FROM stdin;
+COPY public.announcements (id, title, content) FROM stdin;
+1	a	b
+2	Watch the new hits!	Check out Wandering Earth featuring Wu Jing
 \.
 
 
@@ -427,7 +460,8 @@ COPY public.comments (comment_id, id, movie_id, rating, content) FROM stdin;
 --
 
 COPY public.movies (movie_id, moviename, starname, detail, running_time, type, avg_rating, poster, box_office, num_participants, release_date, box_office_unit, foreign_name, location) FROM stdin;
-1	Avatar	zxj	a new movie	120	sci-fi	2.5000000000000000		60	3	0		avatar	shanghai
+2	Wandering Earth	Wu Jing	A Chinese Sci-fi Movie	130	Sci-fi	0		0	0	2021		WE	Shanghai
+1	Avatar	zxj	a new movie	120	Sci-fi	2.5000000000000000		60	3	2022		A	Shanghai
 \.
 
 
@@ -502,6 +536,13 @@ COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded)
 
 
 --
+-- Name: announcements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.announcements_id_seq', 2, true);
+
+
+--
 -- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -519,7 +560,7 @@ SELECT pg_catalog.setval('public.comments_comment_id_seq', 3, true);
 -- Name: movies_movie_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.movies_movie_id_seq', 1, true);
+SELECT pg_catalog.setval('public.movies_movie_id_seq', 2, true);
 
 
 --
@@ -555,6 +596,14 @@ SELECT pg_catalog.setval('public.theaters_theater_id_seq', 1, true);
 --
 
 SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 4, true);
+
+
+--
+-- Name: announcements announcements_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.announcements
+    ADD CONSTRAINT announcements_pkey PRIMARY KEY (id);
 
 
 --
