@@ -37,6 +37,13 @@ bool check_permission(const boost::json::string& user_type, const boost::json::s
     return m[user_type][permission];
 }
 
+bool check_logged_in(boost::json::object session) {
+    if (!session.count("user")) {
+        return false;
+    }
+    return true;
+}
+
 std::optional<boost::json::object> check_session_permission(boost::json::object session, boost::json::string permission) {
     if (!session.count("user")) {
         return {{{"success", false}, {"message", "Not logged in"}}};

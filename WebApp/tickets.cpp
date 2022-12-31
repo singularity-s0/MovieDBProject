@@ -2,12 +2,23 @@
 #include "handlers.h"
 #include "rendering.h"
 
+#include <iostream>
+
+extern bserv::db_relation_to_object orm_screening;
+
 bserv::db_relation_to_object orm_ticket{
     bserv::make_db_field<int>("ticket_id"),
     bserv::make_db_field<int>("user_id"),
     bserv::make_db_field<int>("screening_id"),
     bserv::make_db_field<int>("seat_id"),
     bserv::make_db_field<int>("price"),
+};
+
+bserv::db_relation_to_object orm_seats{
+    bserv::make_db_field<int>("seat_id"),
+    bserv::make_db_field<int>("screening_id"),
+    bserv::make_db_field<std::string>("seat_name"),
+    bserv::make_db_field<std::optional<int>>("user_id"),
 };
 
 std::nullopt_t buy_ticket_page(
@@ -17,6 +28,10 @@ std::nullopt_t buy_ticket_page(
     std::shared_ptr<bserv::db_connection> conn,
     std::shared_ptr<bserv::session_type> session_ptr,
     const std::string& movie_id) {
+    if(!check_logged_in(*session_ptr)) {
+        throw std::runtime_error("Not logged in");
+    }
+
     boost::json::object context;
     try {
         int mov_id = std::stoi(movie_id);
@@ -31,12 +46,124 @@ std::nullopt_t buy_ticket_page(
         throw std::runtime_error("Invalid movie id");
     }
 
-    boost::json::array placeholder;
-    placeholder.push_back("123");
+    auto selected_date = get_or_empty(params, "date");
+    auto selected_time = get_or_empty(params, "time");
+    auto selected_room = get_or_empty(params, "room");
+    auto selected_seat = get_or_empty(params, "seat");
 
-    context["times"] = placeholder;
-    context["seats"] = placeholder;
+    bserv::db_transaction tx{conn};
+    // Get available screening times
+    bserv::db_result db_res = tx.exec("select * from screenings where screenings.movie_id=?;", movie_id);
+    lginfo << db_res.query();
+    auto screenings = orm_screening.convert_to_vector(db_res);
+    boost::json::array screening_dates, screening_times;
+    screening_dates.push_back("");
+    screening_times.push_back("");
+    for (auto& screening : screenings) {
+        boost::json::string showing_date = screening["showing_date"].as_string();
+        if(!array_contains(screening_dates, showing_date)) {
+            screening_dates.push_back(showing_date);
+        }
+        if (showing_date == selected_date) {
+            boost::json::string showing_time = screening["time"].as_string();
+            if (!array_contains(screening_times, showing_time)) {
+                screening_times.push_back(showing_time);
+            }
+            if (showing_time == selected_time) {
+                int screening_id = screening["screening_id"].as_int64();
+                context["screening_id"] = screening_id;
+            }
+        }
+    }
+    context["selected_time"] = selected_time;
+    context["selected_date"] = selected_date;
+    context["times"] = screening_times;
+    context["dates"] = screening_dates;
+    context["allow_submit"] = false;
+    context["selected_seat"] = selected_seat;
+
+    boost::json::array seats;
+    seats.push_back("");
+    // Get available seats
+    if (context.count("screening_id")) {
+        int screening_id = context["screening_id"].as_int64();
+        bserv::db_result db_res = tx.exec("select * from seats where seats.screening_id=?;", screening_id);
+        lginfo << db_res.query();
+        for (auto& seat : orm_seats.convert_to_vector(db_res)) {
+            auto seat_name = seat["seat_name"].as_string();
+            seats.push_back(seat_name);
+        }
+    }
+    context["seats"] = seats;
+
+    if (context.count("screening_id") && !selected_seat.empty()) {
+        context["allow_submit"] = true;
+    }
 
     context["permission"] = get_permission_for_session(*session_ptr);
     return index("buyticket.html", session_ptr, response, context);
+}
+
+boost::json::object buy_ticket(
+    bserv::request_type& request,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
+    if (request.method() != boost::beast::http::verb::post) {
+        throw bserv::url_not_found_exception{};
+    }
+    if (!check_logged_in(*session_ptr)) {
+        throw std::runtime_error("You must log in to buy tickets");
+    }
+
+    boost::json::object session = *session_ptr;
+    boost::json::object user = session["user"].as_object();
+    int user_id = user["id"].as_int64();
+
+    auto screening_id = params["screening_id"].as_string();
+    auto seat_name = params["seat"].as_string();
+    bserv::db_transaction tx{conn};
+    bserv::db_result r =
+        tx.exec("select * from seats where screening_id = ?, seat_name = ?;", screening_id, seat_name);
+    lginfo << r.query();
+    auto seats = orm_seats.convert_to_vector(r);
+    if (seats.size() != 1) {
+        throw std::runtime_error("Invalid query result");
+    }
+    auto seat_id = seats[0]["seat_id"].as_int64();
+
+    // Get price
+    r = tx.exec("select * from screenings where screening_id = ?;", screening_id);
+    lginfo << r.query();
+    auto screenings = orm_screening.convert_to_vector(r);
+    if (screenings.size() != 1) {
+        throw std::runtime_error("Invalid query result");
+    }
+    auto price = screenings[0]["price"].as_int64();
+
+    try {
+        bserv::db_result r = tx.exec(
+            "insert into tickets (user_id, screening_id, seat_id, price) values (?, ?, ?, ?);",
+            user_id,
+            screening_id,
+            seat_id,
+            price);
+        lginfo << r.query();
+        tx.commit();
+    } catch (const std::exception& e) {
+        return {{"success", false}, {"message", e.what()}};
+    }
+    return {{"success", true}, {"message", "Ticket bought"}};
+}
+
+std::nullopt_t form_buy_ticket(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr) {
+    boost::json::object context =
+        buy_ticket(request, std::move(params), conn, session_ptr);
+    return redirect_to_mycenter(conn, session_ptr, response,
+                              std::move(context));
 }

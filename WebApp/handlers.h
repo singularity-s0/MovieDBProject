@@ -8,6 +8,8 @@
 
 #include "bserv/common.hpp"
 
+bool check_logged_in(boost::json::object session);
+bool array_contains(const boost::json::array& arr, const boost::json::string& str);
 boost::json::object get_permission_for_session(boost::json::object session);
 bool check_permission(const boost::json::string& user_type, const boost::json::string& permission);
 std::optional<boost::json::object> check_session_permission(boost::json::object session, boost::json::string permission);
@@ -239,3 +241,9 @@ std::nullopt_t form_modify_comment(
 std::nullopt_t view_mycenter(std::shared_ptr<bserv::db_connection> conn,
                              std::shared_ptr<bserv::session_type> session_ptr,
                              bserv::response_type& response);
+
+std::nullopt_t redirect_to_mycenter(
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    bserv::response_type& response,
+    boost::json::object&& context);

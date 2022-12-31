@@ -20,6 +20,14 @@ bserv::db_relation_to_object orm_theater{
     bserv::make_db_field<std::string>("theater_address"),
 };
 
+bool array_contains(const boost::json::array& arr, const boost::json::string& str) {
+    for (const auto& item : arr) {
+        if (item.as_string() == str) {
+            return true;
+        }
+    }
+    return false;
+}
 
 std::string get_or_empty(boost::json::object& obj, const std::string& key) {
     return obj.count(key) ? obj[key].as_string().c_str() : "";
