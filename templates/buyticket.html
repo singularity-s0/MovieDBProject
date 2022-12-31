@@ -8,25 +8,49 @@
       <h1 class="display-5 fw-bold">Buy ticket for {{ movie.moviename }}</h1>
       <p class="col-md-8 fs-4">Choose your time and seats</p>
 
-        <form method="post" action="/form_buyticket">
+        <form method="post" action="/form_buy_ticket">
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <select class="form-select" id="date" name="date" data-param="date">
+                    {% for date in dates %}
+                    <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>{{ date }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="mb-3">
             <label for="time" class="form-label">Time</label>
-            <select class="form-select" id="time" name="time">
+            <select class="form-select" id="time" name="time" data-param="time">
                 {% for time in times %}
-                <option value="{{ time }}">{{ time }}</option>
+                <option value="{{ time }}" {% if time == selected_time %}selected{% endif %}>{{ time }}</option>
                 {% endfor %}
             </select>
             </div>
+            {% if exists("screening_id") %}
+            <input type="hidden" name="screening_id" value="{{ screening_id }}">
+            {% endif %}
             <div class="mb-3">
             <label for="seat" class="form-label">Seats</label>
-            <select class="form-select" id="time" name="time">
+            <select class="form-select" id="time" name="time" data-param="seat">
                 {% for seat in seats %}
                 <option value="{{ seat }}">{{ seat }}</option>
                 {% endfor %}
             </select>
             </div>
+            {% if allow_submit %}
             <button type="submit" class="btn btn-primary btn-lg">Buy</button>
+            {% endif %}
         </form>
     </div>
 </div>
+<script>
+$('.form-select').change(function(){
+    var url_without_qp = window.location.href.split('?')[0];
+    var params =[];
+    $('.form-select').each(function(){
+        $this=$(this);
+        if(!$this.val()=='') params.push($this.data('param')+'='+encodeURIComponent( $this.val() ));
+    });
+    window.location = url_without_qp + '?'+params.join('&');
+});
+</script>
 {% endblock %}
