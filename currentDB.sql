@@ -109,7 +109,7 @@ CREATE TABLE public.movies (
     detail character varying(255),
     running_time integer,
     type character varying(255),
-    avg_rating integer,
+    avg_rating numeric,
     poster character varying(255),
     box_office integer,
     num_participants integer,
@@ -398,6 +398,8 @@ COPY public.auth_user (id, username, password, is_superuser, first_name, last_na
 --
 
 COPY public.comments (comment_id, id, movie_id, rating, content) FROM stdin;
+3	1	1	1	Not very good
+2	2	1	4	Very good
 \.
 
 
@@ -406,7 +408,7 @@ COPY public.comments (comment_id, id, movie_id, rating, content) FROM stdin;
 --
 
 COPY public.movies (movie_id, moviename, starname, detail, running_time, type, avg_rating, poster, box_office, num_participants, release_date, box_office_unit, foreign_name, location) FROM stdin;
-1	Avatar	zxj	a new movie	120	sci-fi	0		0	0	0		avatar	shanghai
+1	Avatar	zxj	a new movie	120	sci-fi	2.5000000000000000		60	3	0		avatar	shanghai
 \.
 
 
@@ -439,8 +441,6 @@ COPY public.seats (seat_id, screening_id, seat_name, user_id) FROM stdin;
 1	10	#0	\N
 2	10	#1	\N
 4	10	#3	\N
-5	10	#4	\N
-6	10	#5	\N
 7	10	#6	\N
 8	10	#7	\N
 9	10	#8	\N
@@ -456,6 +456,8 @@ COPY public.seats (seat_id, screening_id, seat_name, user_id) FROM stdin;
 19	10	#18	\N
 20	10	#19	\N
 3	10	#2	1
+6	10	#5	2
+5	10	#4	2
 \.
 
 
@@ -475,6 +477,8 @@ COPY public.theaters (theater_id, theater_name, theater_address) FROM stdin;
 COPY public.tickets (ticket_id, user_id, screening_id, seat_id, price, refunded) FROM stdin;
 1	1	10	2	20	t
 2	1	10	3	20	f
+3	2	10	6	20	f
+4	2	10	5	20	f
 \.
 
 
@@ -489,7 +493,7 @@ SELECT pg_catalog.setval('public.auth_user_id_seq', 8, true);
 -- Name: comments_comment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.comments_comment_id_seq', 1, false);
+SELECT pg_catalog.setval('public.comments_comment_id_seq', 3, true);
 
 
 --
@@ -531,7 +535,7 @@ SELECT pg_catalog.setval('public.theaters_theater_id_seq', 1, true);
 -- Name: tickets_ticket_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 2, true);
+SELECT pg_catalog.setval('public.tickets_ticket_id_seq', 4, true);
 
 
 --
