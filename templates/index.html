@@ -15,16 +15,17 @@
   </div>
 </div>
 
-{% if existsIn(permission, "modify_movie") %}
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#movieModal">
-  Add Movie
-</button>
-{% endif %}
+
 
 <form action="/">
   <div class="input-group">
     <input type="search" class="form-control rounded" placeholder="Search Movie" aria-label="Search" aria-describedby="search-addon" name="s" value="{{ search_kw }}" />
     <button type="submit" class="btn btn-outline-primary">Search</button>
+    {% if existsIn(permission, "modify_movie") %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#movieModal">
+      Add Movie
+    </button>
+    {% endif %}
   </div>
 </form>
 <table class="table">

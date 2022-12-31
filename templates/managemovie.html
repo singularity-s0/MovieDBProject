@@ -10,7 +10,7 @@
   Add Screening
 </button>
 
-<table class="table">
+<table class="table" id="tb">
     <thead>
         <tr>
         <th scope="col">Date</th>
@@ -34,6 +34,15 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    $(document).ready(function () {
+      $('#tb').DataTable({
+        "order": [[ 0, "asc" ]]
+      });
+      $('.dataTables_length').addClass('bs-select');
+    });
+  </script>
 
 <!-- Modify Modal -->
 {% for screening in screenings %}

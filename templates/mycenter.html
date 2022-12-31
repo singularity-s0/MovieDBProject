@@ -8,7 +8,7 @@
 <!-- Button trigger modal -->
 <p class="col-md-8 fs-4">My Tickets</p>
 
-<table class="table">
+<table class="table" id="tickets_tb">
     <thead>
         <tr>
         <th scope="col">Ticket ID</th>
@@ -38,6 +38,15 @@
       {% endfor %}
     </tbody>
 </table>
+
+<script>
+  $(document).ready(function () {
+    $('#tickets_tb').DataTable({
+      "order": [[ 0, "asc" ]]
+    });
+    $('.dataTables_length').addClass('bs-select');
+  });
+</script>
 
 <!-- Cancel Modal -->
 {% for ticket in tickets %}

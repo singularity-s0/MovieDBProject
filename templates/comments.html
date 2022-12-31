@@ -10,7 +10,7 @@
   Add Comment
 </button>
 
-<table class="table">
+<table class="table" id="tb">
     <thead>
         <tr>
         <th scope="col">Rating</th>
@@ -30,6 +30,15 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+  $(document).ready(function () {
+    $('#tb').DataTable({
+      "order": [[ 0, "asc" ]]
+    });
+    $('.dataTables_length').addClass('bs-select');
+  });
+</script>
 
 <!-- Modify Modal -->
 {% for comment in comments %}
