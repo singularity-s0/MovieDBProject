@@ -238,6 +238,28 @@ int main(int argc, char* argv[]) {
 			bserv::placeholders::session,
 			bserv::placeholders::_1),
 
+		bserv::make_path("/managecomments/<int>", &manage_comments,
+			bserv::placeholders::request,
+			bserv::placeholders::response,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::_1),
+		bserv::make_path("/form_add_comment/<int>", &form_add_comment,
+			bserv::placeholders::request,
+			bserv::placeholders::response,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::_1),
+		bserv::make_path("/form_modify_comment/<int>", &form_modify_comment,
+			bserv::placeholders::request,
+			bserv::placeholders::response,
+			bserv::placeholders::json_params,
+			bserv::placeholders::db_connection_ptr,
+			bserv::placeholders::session,
+			bserv::placeholders::_1),
+
 		}
 		, {
 			// websocket example

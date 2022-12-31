@@ -6,8 +6,10 @@
 
 // Only list permissions whose value is true
 std::map<boost::json::string, bool> user_perms = {};
-std::map<boost::json::string, bool> manager_perms = boost::assign::map_list_of ("modify_announcement", true) ("modify_movie", true) ("view_user", true) ("modify_user", true)("modify_room", true);
-std::map<boost::json::string, bool> admin_perms = boost::assign::map_list_of ("modify_announcement", true) ("modify_movie", true) ("view_user", true) ("modify_user", true)("modify_room", true);
+std::map<boost::json::string, bool> manager_perms = boost::assign::map_list_of ("modify_announcement", true) 
+("modify_movie", true) ("view_user", true) ("modify_user", true)("modify_room", true)("modify_comment", true);
+std::map<boost::json::string, bool> admin_perms = boost::assign::map_list_of ("modify_announcement", true) 
+("modify_movie", true) ("view_user", true) ("modify_user", true)("modify_room", true)("modify_comment", true);
 
 std::map<boost::json::string, std::map<boost::json::string, bool>> m = boost::assign::map_list_of ("user", user_perms) ("manager", manager_perms) ("admin", admin_perms);
 

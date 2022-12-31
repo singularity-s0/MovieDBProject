@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Comments{% endblock %}
+
+{% block content %}
+<!-- Button trigger modal -->
+<p class="col-md-8 fs-4">Movie {{ movie.moviename }} Comments</p>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal">
+  Add Comment
+</button>
+
+<table class="table">
+    <thead>
+        <tr>
+        <th scope="col">Rating</th>
+        <th scope="col">Content</th>
+        <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comment in comments %}
+        <tr>
+        <td>{{ comment.rating }}</td>
+        <td>{{ comment.content }}</td>
+        <td><a href="" data-bs-toggle="modal" data-bs-target="#modifyModal{{ comment.comment_id }}">
+            Modify
+        </a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modify Modal -->
+{% for comment in comments %}
+<div class="modal fade" id="modifyModal{{ comment.comment_id }}" tabindex="-1" aria-labelledby="modifyModalLabel{{ comment.comment_id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/form_modify_comment/{{ comment.comment_id }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modifyModalLabel{{ comment.comment_id }}">Modify Comment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="rating" class="form-label">Rating</label>
+            <input type="text" class="form-control" id="rating" name="rating" value="{{ comment.rating }}">
+          </div>
+          <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <input type="text" class="form-control" id="content" name="content" value="{{ comment.content }}">
+          </div>
+        </div>
+        <input type="hidden" name="movie_id" value="{{ movie.movie_id }}">
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Modify</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="/form_add_comment/{{ movie.movie_id }}">
+          <div class="modal-header">
+            <h5 class="modal-title" id="commentModalLabel">Add Comment</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="rating" class="form-label">Rating</label>
+              <input type="text" class="form-control" id="rating" name="rating" placeholder="0-5">
+            </div>
+            <div class="mb-3">
+              <label for="content" class="form-label">Content</label>
+              <input type="text" class="form-control" id="content" name="content">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
