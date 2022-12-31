@@ -276,3 +276,11 @@ std::nullopt_t form_refund_ticket(
 std::nullopt_t view_comments(std::shared_ptr<bserv::db_connection> conn,
                            std::shared_ptr<bserv::session_type> session_ptr,
                            bserv::response_type& response, const std::string& movie_id);
+
+std::nullopt_t review(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& movie_id);

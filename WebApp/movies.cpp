@@ -185,8 +185,17 @@ std::nullopt_t redirect_to_movies(
     if (total_movies % 10 != 0)
         ++total_pages;
     lgdebug << "total pages: " << total_pages << std::endl;
-    db_res =
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "view_unreviewed")) !=
+        std::nullopt){
+            db_res =
+            tx.exec("select * from movies where reviewed = true and moviename like ? limit 10 offset ?;", search_query, (page_id - 1) * 10);
+        }
+    else{
+        db_res =
         tx.exec("select * from movies where moviename like ? limit 10 offset ?;", search_query, (page_id - 1) * 10);
+    }
+    
     lginfo << db_res.query();
     auto movies = orm_movie.convert_to_vector(db_res);
     boost::json::array json_movies;
@@ -318,4 +327,36 @@ std::nullopt_t form_modify_announcement(
         announcement_add(request, std::move(params), conn, session_ptr);
     return redirect_to_movies(conn, std::move(params), session_ptr, response, 1,
                               std::move(context));
+    }
+
+boost::json::object review(bserv::request_type& request,
+                           bserv::response_type& response,
+                           boost::json::object&& params,
+                           std::shared_ptr<bserv::db_connection> conn,
+                           std::shared_ptr<bserv::session_type> session_ptr,
+                           int movie_id) {
+    if (request.method() != boost::beast::http::verb::post) {
+        throw bserv::url_not_found_exception{};
+    }
+
+    std::optional<boost::json::object> p;
+    if ((p = check_session_permission(*session_ptr, "review_movie")) !=
+        std::nullopt) {
+        return p.value();
+    }
+
+    bserv::db_transaction tx{conn};
+    auto opt_movie = get_movie_by_id(tx, movie_id);
+    if (!opt_movie.has_value()) {
+        return {{"success", false}, {"message", "Movie does not exist"}};
+    }
+    auto password = get_or_empty(params, "password");
+    bserv::db_result r = tx.exec(
+        "update ? "
+        "set reviewed = true "
+        "where movie_id = ?",
+        bserv::db_name("movies"), movie_id);
+    lginfo << r.query();
+    tx.commit();  // you must manually commit changes
+    return {{"success", true}, {"message", "Movie reviewed"}};
 }

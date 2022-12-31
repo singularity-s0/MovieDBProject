@@ -68,6 +68,10 @@
         <a href="/managemovie/{{ movie.movie_id }}">Manage</a>
         {% endif %}
 
+        {% if existsIn(permission, "review_movie") %}
+        <a href="/form_review/{{movie.movie_id}}">Review</a>
+        {% endif %}
+
         {% if exists("user") %}
         <a href="/buyticket/{{ movie.movie_id }}">Buy</a>
         {% else %}
