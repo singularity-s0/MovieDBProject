@@ -72,7 +72,9 @@ std::nullopt_t buy_ticket_page(
             }
             if (showing_time == selected_time) {
                 int screening_id = screening["screening_id"].as_int64();
+                int price = screening["price"].as_int64();
                 context["screening_id"] = screening_id;
+                context["price"] = price;
             }
         }
     }
