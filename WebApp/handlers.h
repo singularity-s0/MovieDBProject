@@ -211,4 +211,27 @@ std::nullopt_t redirect_to_rooms(
     bserv::response_type& response,
     int page_id,
     boost::json::object&& context);
-    
+
+std::nullopt_t manage_comments(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& movie_id);
+
+std::nullopt_t form_add_comment(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& movie_id);
+
+std::nullopt_t form_modify_comment(
+    bserv::request_type& request,
+    bserv::response_type& response,
+    boost::json::object&& params,
+    std::shared_ptr<bserv::db_connection> conn,
+    std::shared_ptr<bserv::session_type> session_ptr,
+    const std::string& screening_id);

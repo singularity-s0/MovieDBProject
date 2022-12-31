@@ -50,7 +50,10 @@
       <td>{{ movie.detail }}</td>
       <td>{{ movie.running_time }}</td>
       <td>{{ movie.type }}</td>
-      <td>{{ movie.avg_rating }}</td>
+      <td>
+        {{ movie.avg_rating }}
+        <a href="/managecomments/{{ movie.movie_id }}">View Comments</a>
+      </td>
       <td>{{ movie.poster }}</td>
       <td>{{ movie.box_office }}</td>
       <td>{{ movie.num_participants }}</td>

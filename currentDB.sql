@@ -69,6 +69,7 @@ CREATE TABLE public.comments (
     comment_id integer NOT NULL,
     id integer NOT NULL,
     movie_id integer NOT NULL,
+    rating integer,
     content character varying(255)
 );
 
@@ -354,7 +355,7 @@ COPY public.auth_user (id, username, password, is_superuser, first_name, last_na
 -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.comments (comment_id, id, movie_id, content) FROM stdin;
+COPY public.comments (comment_id, id, movie_id, rating, content) FROM stdin;
 \.
 
 
@@ -372,9 +373,9 @@ COPY public.movies (movie_id, moviename, starname, detail, running_time, type, a
 --
 
 COPY public.screening_rooms (room_id, room_name, theater_id, capacity) FROM stdin;
-3	IMAX	1	25
 4	THX	1	25
 1	Room 1	1	30
+3	IMAX	1	20
 \.
 
 
