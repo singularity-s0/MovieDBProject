@@ -121,11 +121,12 @@ boost::json::object buy_ticket(
     boost::json::object user = session["user"].as_object();
     int user_id = user["id"].as_int64();
 
-    auto screening_id = params["screening_id"].as_string();
+    boost::json::string screening_id_str = params["screening_id"].as_string();
+    auto screening_id = std::stoi(screening_id_str.c_str());
     auto seat_name = params["seat"].as_string();
     bserv::db_transaction tx{conn};
     bserv::db_result r =
-        tx.exec("select * from seats where screening_id = ?, seat_name = ?;", screening_id, seat_name);
+        tx.exec("select * from seats where screening_id = ? and seat_name = ?;", screening_id, seat_name);
     lginfo << r.query();
     auto seats = orm_seats.convert_to_vector(r);
     if (seats.size() != 1) {
@@ -144,7 +145,7 @@ boost::json::object buy_ticket(
 
     try {
         bserv::db_result r = tx.exec(
-            "insert into tickets (user_id, screening_id, seat_id, price) values (?, ?, ?, ?);",
+            "insert into tickets (user_id, screening_id, seat_id, price, refunded) values (?, ?, ?, ?, false);",
             user_id,
             screening_id,
             seat_id,
@@ -184,6 +185,8 @@ boost::json::object refund_ticket(
     auto ticket = tickets[0];
     if (ticket["user_id"].as_int64() != user_id) {
         return {{"success", false}, {"message", "You do not own this ticket"}};
+    } else if (ticket["refunded"].as_bool()) {
+        return {{"success", false}, {"message", "This ticket has already been refunded"}};
     }
     // Set ticket to refunded
     r = tx.exec("update tickets set refunded = true where ticket_id = ?;", ticket_id);

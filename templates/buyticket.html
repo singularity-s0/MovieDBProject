@@ -30,9 +30,9 @@
             {% endif %}
             <div class="mb-3">
             <label for="seat" class="form-label">Seats</label>
-            <select class="form-select" id="time" name="time" data-param="seat">
+            <select class="form-select" id="seat" name="seat" data-param="seat">
                 {% for seat in seats %}
-                <option value="{{ seat }}">{{ seat }}</option>
+                <option value="{{ seat }}" {% if seat == selected_seat %}selected{% endif %}>{{ seat }}</option>
                 {% endfor %}
             </select>
             </div>

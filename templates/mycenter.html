@@ -12,11 +12,12 @@
     <thead>
         <tr>
         <th scope="col">Ticket ID</th>
+        <th scope="col">Movie</th>
         <th scope="col">Time</th>
         <th scope="col">Seat</th>
         <th scope="col">Room</th>
         <th scope="col">Price</th>
-        <th scope="col">Refunded</th>
+        <th scope="col">Refund</th>
         <th scope="col">Action</th>
         </tr>
     </thead>
@@ -24,14 +25,14 @@
       {% for ticket in tickets %}
         <tr>
         <td>{{ ticket.ticket_id }}</td>
+        <td>{{ ticket.moviename }}</td>
         <td>{{ ticket.time }}</td>
-        <td>{{ ticket.seat_id }}</td>
-        <td>{{ ticket.room_id }}</td>
+        <td>{{ ticket.seat_name }}</td>
+        <td>{{ ticket.room }}</td>
         <td>{{ ticket.price }}</td>
-        <td>{{ ticket.refunded }}</td>
+        <td>{% if ticket.refunded %} Refunded {% else %} <a href="" data-bs-toggle="modal" data-bs-target="#cancelModal{{ ticket.ticket_id }}">Refund</a> {% endif %}</td>
         <td>
-          <a href="/viewticket/{{ ticket.ticket_id }}">View</a>
-          <a href="" data-bs-toggle="modal" data-bs-target="#cancelModal{{ ticket.ticket_id }}">Cancel</a>
+          <a href="" data-bs-toggle="modal" data-bs-target="#viewModal{{ ticket.ticket_id }}">View</a>
         </td>
         </tr>
       {% endfor %}
@@ -52,10 +53,37 @@
           <p>Are you sure you want to refund this ticket?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-danger">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+          <button type="submit" class="btn btn-danger">Yes</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- View Ticket Details Modal -->
+{% for ticket in tickets %}
+<div class="modal fade" id="viewModal{{ ticket.ticket_id }}" tabindex="-1" aria-labelledby="viewModalLabel{{ ticket.ticket_id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewModalLabel{{ ticket.ticket_id }}">Ticket Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>ID: {{ ticket.ticket_id }}</p>
+        <p>Movie: {{ ticket.moviename }}</p>
+        <p>Username: {{ ticket.username }}</p>
+        <p>Time: {{ ticket.time }}</p>
+        <p>Seat: {{ ticket.seat_name }}</p>
+        <p>Room: {{ ticket.room }}</p>
+        <p>Price: {{ ticket.price }}</p>
+        <p>Refunded: {{ ticket.refunded }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>

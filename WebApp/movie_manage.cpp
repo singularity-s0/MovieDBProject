@@ -8,7 +8,7 @@ bserv::db_relation_to_object orm_screening{
     bserv::make_db_field<int>("room_id"),
     bserv::make_db_field<int>("movie_id"),
     bserv::make_db_field<std::string>("time"),
-    bserv::make_db_field<std::string>("price"),
+    bserv::make_db_field<int>("price"),
     bserv::make_db_field<std::string>("showing_date"),
 };
 
@@ -99,7 +99,7 @@ std::nullopt_t form_add_screening(
             "showing_date) "
             "values (?, ?, ?, ?, ?) returning screening_id;",
             get_stoi_or_zero(params, "room_id"), std::stoi(movie_id),
-            get_or_empty(params, "time"), get_or_empty(params, "price"),
+            get_or_empty(params, "time"), get_stoi_or_zero(params, "price"),
             get_or_empty(params, "date"));
         lginfo << r.query();
         // Get the last inserted id
@@ -160,11 +160,11 @@ std::nullopt_t form_modify_screening(
     bserv::db_result r = tx.exec(
         "update screenings set room_id = COALESCE(NULLIF(?, 0), room_id), "
         "time = COALESCE(NULLIF(?, ''), time), "
-        "price = COALESCE(NULLIF(?, ''), price), "
+        "price = COALESCE(NULLIF(?, 0), price), "
         "showing_date = COALESCE(NULLIF(?, ''), showing_date) "
         "where screening_id = ?;",
         get_stoi_or_zero(params, "room_id"), get_or_empty(params, "time"),
-        get_or_empty(params, "price"), get_or_empty(params, "date"),
+        get_stoi_or_zero(params, "price"), get_or_empty(params, "date"),
         std::stoi(screening_id));
     lginfo << r.query();
     tx.commit();
