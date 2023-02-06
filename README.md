@@ -1,9 +1,17 @@
+# Movie DB Project
+
+A simple class project for COMP130010 Introduction to Database Systems at Fudan University.
+
+## Setup
+Depending on your system, follow the guidance in [`BUILD-Windows.md`](BUILD-Windows.md) or [`BUILD-ubuntu.md`](BUILD-ubuntu.md)
+
+The default admin account is `admin` with password `admin`.
+
 # bserv
 
 *A Boost Based C++ HTTP JSON Server.*
 
 > NOTE:
-> - To build the dependencies & the project, refer to [`BUILD-Windows.md`](BUILD-Windows.md) or [`BUILD-ubuntu.md`](BUILD-ubuntu.md).
 > - `bserv` contains the source code for `bserv`.
 
 
